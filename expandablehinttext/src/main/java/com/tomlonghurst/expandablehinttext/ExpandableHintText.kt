@@ -42,6 +42,7 @@ class ExpandableHintText : FrameLayout {
 
     private var animationDuration = -1
     private var textColor = Int.MIN_VALUE
+    private var textSize: Float = -1f
     private var imageDrawableId = -1
     private var cardCollapsedHeight = -1
     private var customHasFocus = true
@@ -273,6 +274,7 @@ class ExpandableHintText : FrameLayout {
             presetText = styledAttrs.getString(R.styleable.ExpandableHintText_android_text)
             inputType = styledAttrs.getInt(R.styleable.ExpandableHintText_android_inputType, EditorInfo.TYPE_NULL)
             maxLines = styledAttrs.getInt(R.styleable.ExpandableHintText_android_maxLines, 1)
+            textSize = styledAttrs.getFloat(R.styleable.ExpandableHintText_android_textSize, label.textSize)
         } catch (e: Exception) {
             e.printStackTrace()
         } finally {
@@ -407,6 +409,9 @@ class ExpandableHintText : FrameLayout {
 
         editText.inputType = inputType
         editText.maxLines = maxLines
+
+        editText.textSize = textSize
+        label.textSize = textSize
     }
 
     private fun setCursorColor(@ColorInt color: Int) {
