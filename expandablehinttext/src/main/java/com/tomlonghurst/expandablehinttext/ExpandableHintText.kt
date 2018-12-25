@@ -255,7 +255,7 @@ class ExpandableHintText : FrameLayout {
             styledAttrs = context.obtainStyledAttributes(attrs, R.styleable.ExpandableHintText)
 
             animationDuration = styledAttrs.getInteger(R.styleable.ExpandableHintText_animationDuration, 400)
-            textColor = styledAttrs.getColor(R.styleable.ExpandableHintText_textColor, Int.MIN_VALUE)
+            textColor = styledAttrs.getColor(R.styleable.ExpandableHintText_android_textColor, Int.MIN_VALUE)
             floatingLabelColor = styledAttrs.getColor(R.styleable.ExpandableHintText_floatingLabelColor, Color.BLACK)
             imageDrawableId = styledAttrs.getResourceId(R.styleable.ExpandableHintText_image, -1)
             imageColour = styledAttrs.getColor(R.styleable.ExpandableHintText_imageColor, Color.GRAY)
@@ -263,11 +263,11 @@ class ExpandableHintText : FrameLayout {
                 R.styleable.ExpandableHintText_cardCollapsedHeight,
                 context.resources.getDimensionPixelOffset(R.dimen.cardHeight_initial)
             )
-            customHasFocus = styledAttrs.getBoolean(R.styleable.ExpandableHintText_hasFocus, false)
-            isEnabled = styledAttrs.getBoolean(R.styleable.ExpandableHintText_enabled, true)
-            hintText = styledAttrs.getString(R.styleable.ExpandableHintText_hint) ?: ""
+            customHasFocus = styledAttrs.getBoolean(R.styleable.ExpandableHintText_isFocusedByDefault, false)
+            isEnabled = styledAttrs.getBoolean(R.styleable.ExpandableHintText_android_enabled, true)
+            hintText = styledAttrs.getString(R.styleable.ExpandableHintText_android_hint) ?: ""
             textBoxColor = styledAttrs.getColor(R.styleable.ExpandableHintText_textBoxColor, Color.WHITE)
-            presetText = styledAttrs.getString(R.styleable.ExpandableHintText_text)
+            presetText = styledAttrs.getString(R.styleable.ExpandableHintText_android_text)
         } catch (e: Exception) {
             e.printStackTrace()
         } finally {

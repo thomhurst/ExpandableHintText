@@ -2,16 +2,17 @@
 <resources>
     <declare-styleable name="ExpandableHintText">
         <attr name="cardCollapsedHeight" format="dimension"/>
-        <attr name="textColor" format="color"/>
         <attr name="textBoxColor" format="color"/>
-        <attr name="hint" format="string"/>
+        <attr name="android:hint" format="string"/>
         <attr name="floatingLabelColor" format="color"/>
         <!--<attr name="textCursorColor" format="color"/>-->
-        <attr name="text" format="string"/>
         <attr name="image" format="reference"/>
         <attr name="imageColor" format="color"/>
-        <attr name="hasFocus" format="boolean"/>
-        <attr name="enabled" format="boolean"/>
+        <attr name="isFocusedByDefault" format="boolean"/>
+        <attr name="android:enabled" format="boolean"/>
         <attr name="animationDuration" format="integer"/>
+        <attr name="android:text" />
+        <attr name="android:textColor" />
+        <attr name="android:inputType" />
     </declare-styleable>
 </resources>

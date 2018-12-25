@@ -22,9 +22,9 @@
                 android:layout_height="wrap_content"
                 app:imageColor="@color/colorPrimary"
                 app:image="@drawable/ic_baseline_sentiment_very_satisfied_24px"
-                app:hint="First Name"
+                android:hint="First Name"
                 app:textBoxColor="@android:color/white"
-                app:textColor="@android:color/black"
+                android:textColor="@android:color/black"
                 app:floatingLabelColor="@android:color/white"
         />
 
@@ -34,10 +34,10 @@
                 android:layout_height="wrap_content"
                 app:imageColor="@color/colorPrimary"
                 app:image="@drawable/ic_baseline_sentiment_very_satisfied_24px"
-                app:text="Tom"
-                app:hint="First Name"
+                android:text="Tom"
+                android:hint="First Name"
                 app:textBoxColor="@android:color/white"
-                app:textColor="@android:color/black"
+                android:textColor="@android:color/black"
                 app:floatingLabelColor="@android:color/white"
         />
 
@@ -45,9 +45,9 @@
                 android:layout_marginTop="32dp"
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
-                app:hint="First Name"
+                android:hint="First Name"
                 app:textBoxColor="@android:color/white"
-                app:textColor="@android:color/black"
+                android:textColor="@android:color/black"
                 app:floatingLabelColor="@android:color/white"
         />
 
@@ -55,10 +55,10 @@
                 android:layout_marginTop="32dp"
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
-                app:text="Tom"
-                app:hint="First Name"
+                android:text="Tom"
+                android:hint="First Name"
                 app:textBoxColor="@android:color/white"
-                app:textColor="@android:color/black"
+                android:textColor="@android:color/black"
                 app:floatingLabelColor="@android:color/white"
         />
 
