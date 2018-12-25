@@ -23,7 +23,8 @@
             android:focusable="false"
             android:textIsSelectable="false"/>
 
-    <RelativeLayout
+    <LinearLayout
+            android:orientation="horizontal"
             android:id="@+id/card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -36,24 +37,14 @@
             android:focusable="false">
 
         <ImageView
-                android:layout_marginTop="8dp"
                 android:id="@+id/image"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="10dp"
                 android:adjustViewBounds="true"
-        />
+                android:contentDescription="icon"/>
 
-        <FrameLayout
-                android:id="@+id/editTextLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_toEndOf="@id/image"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp" />
-
-    </RelativeLayout>
+    </LinearLayout>
 
 </FrameLayout>

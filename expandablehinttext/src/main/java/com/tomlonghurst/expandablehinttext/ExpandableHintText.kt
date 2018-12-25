@@ -8,54 +8,45 @@ import android.content.Context
 import android.content.res.TypedArray
 import android.graphics.Color
 import android.graphics.PorterDuff
-import android.support.annotation.ColorInt
-import android.support.v4.content.ContextCompat
-import android.support.v4.view.ViewCompat
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.method.KeyListener
 import android.util.AttributeSet
 import android.util.Property
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.animation.DecelerateInterpolator
 import android.view.inputmethod.InputMethodManager
 import android.widget.FrameLayout
-import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.ColorInt
+import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import kotlinx.android.synthetic.main.eht_layout.view.*
 
 
 class ExpandableHintText : FrameLayout {
     private lateinit var inputMethodManager: InputMethodManager
 
-    var label: TextView? = null
-        private set
-    lateinit var card: View
-        private set
-    lateinit var image: ImageView
-        private set
     lateinit var editText: ExpandableEditText
         private set
-    lateinit var editTextLayout: ViewGroup
-        private set
-    private var hintText: String? = null
+
+    private var hintText: String = ""
 
     private var labelTranslationY = -1
     private var labelTranslationX = -1
+
     var isExpanded = false
         private set
 
     private var animationDuration = -1
-    private var textColor = -1
+    private var textColor = Int.MIN_VALUE
     private var imageDrawableId = -1
     private var cardCollapsedHeight = -1
     private var customHasFocus = true
-    private var backgroundColor = -1
-    private var imageColour = -1
-    private var floatingLabelColor = -1
-    private var textBoxColor: Int = -1
+    private var imageColour = Color.BLACK
+    private var floatingLabelColor = Color.WHITE
+    private var textBoxColor: Int = Color.WHITE
     private var presetText: String? = null
     private val labelPadding by lazy {
         if (imageDrawableId == -1) {
@@ -83,6 +74,7 @@ class ExpandableHintText : FrameLayout {
     }
 
     private fun init() {
+        View.inflate(context, R.layout.eht_layout, this)
         inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     }
 
@@ -90,6 +82,8 @@ class ExpandableHintText : FrameLayout {
         val scale = context.resources.displayMetrics.density
         return (int * scale + 0.5f).toInt()
     }
+
+
 
     private fun toggle() {
         if (isEnabled) {
@@ -113,7 +107,7 @@ class ExpandableHintText : FrameLayout {
                     }
                 }
 
-                label?.apply {
+                label.apply {
                     post {
                         ViewCompat.animate(this)
                             .scaleX(1f)
@@ -178,7 +172,7 @@ class ExpandableHintText : FrameLayout {
 
             val miniatureScale = 0.7f
 
-            label?.apply {
+            label.apply {
                 post {
                     ViewCompat.animate(this)
                         .scaleX(miniatureScale)
@@ -203,14 +197,6 @@ class ExpandableHintText : FrameLayout {
         }
     }
 
-    override fun setBackgroundColor(color: Int) {
-        this.backgroundColor = color
-    }
-
-    fun getBackgroundColor(): Int {
-        return this.backgroundColor
-    }
-
     private fun setHasFocus(hasFocus: Boolean) {
         this.customHasFocus = hasFocus
 
@@ -222,8 +208,8 @@ class ExpandableHintText : FrameLayout {
         }
     }
 
-    private fun addEditText(): ExpandableEditText {
-        return ExpandableEditText(context).apply {
+    private fun addEditText() {
+        editText = ExpandableEditText(context).apply {
             setOnBackPressListener {
                 editText.clearFocus()
                 card.clearFocus()
@@ -255,6 +241,10 @@ class ExpandableHintText : FrameLayout {
 
             })
 
+            post {
+                setPaddingRelative(getDp(10), paddingTop, paddingEnd, paddingBottom)
+            }
+
             (context as? Activity)?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         }
     }
@@ -275,7 +265,7 @@ class ExpandableHintText : FrameLayout {
             )
             customHasFocus = styledAttrs.getBoolean(R.styleable.ExpandableHintText_hasFocus, false)
             isEnabled = styledAttrs.getBoolean(R.styleable.ExpandableHintText_enabled, true)
-            hintText = styledAttrs.getString(R.styleable.ExpandableHintText_hint)
+            hintText = styledAttrs.getString(R.styleable.ExpandableHintText_hint) ?: ""
             textBoxColor = styledAttrs.getColor(R.styleable.ExpandableHintText_textBoxColor, Color.WHITE)
             presetText = styledAttrs.getString(R.styleable.ExpandableHintText_text)
         } catch (e: Exception) {
@@ -295,36 +285,14 @@ class ExpandableHintText : FrameLayout {
     override fun onFinishInflate() {
         super.onFinishInflate()
 
-        addView(LayoutInflater.from(context).inflate(R.layout.eht_layout, this, false))
+        addEditText()
 
-        editText = addEditText()
-        editTextLayout = findViewById(R.id.editTextLayout)
-        card = findViewById(R.id.card)
-        image = findViewById(R.id.image)
-        label = findViewById(R.id.label)
-
-        editTextLayout.addView(editText)
+        card.addView(editText)
 
         setHasFocus(customHasFocus)
 
-        label?.pivotX = 0f
-        label?.pivotY = 0f
-
-        if (isEnabled) {
-            label?.setOnClickListener { toggle() }
-        } else {
-            label?.isClickable = false
-            label?.isFocusable = false
-        }
-
-        label?.bringToFront()
-        if (isEnabled) {
-            editText.isFocusableInTouchMode = true
-            editText.isFocusable = true
-            editText.bringToFront()
-        }
-
-        hintText?.let { updateHint(it) }
+        label.pivotX = 0f
+        label.pivotY = 0f
 
         editText.setBackgroundColor(Color.TRANSPARENT)
         editText.alpha = 0f
@@ -333,41 +301,60 @@ class ExpandableHintText : FrameLayout {
             expand()
         }
 
-        labelTranslationY = (label?.layoutParams as? FrameLayout.LayoutParams)?.topMargin ?: 0
-        labelTranslationX = label?.paddingLeft ?: 0
-        customizeFromAttributes()
+        label.post {
+            labelTranslationY = (label.layoutParams as FrameLayout.LayoutParams).topMargin
+            labelTranslationX = label.paddingStart
+            customizeFromAttributes()
+            label.bringToFront()
+        }
 
         this.setOnClickListener { v -> toggle() }
 
-        editText.post { editText.clearFocus() }
+        editText.post {
+            editText.clearFocus()
+            editText.bringToFront()
+        }
 
         oldKeyListener = editText.keyListener
+
     }
 
     override fun setEnabled(enabled: Boolean) {
+        if (!::editText.isInitialized) {
+            return
+        }
+
         super.setEnabled(enabled)
 
-        if (::editText.isInitialized) {
-            editText.isEnabled = isEnabled
-        }
+        editText.isEnabled = isEnabled
 
         if (isEnabled) {
             editText.keyListener = oldKeyListener
-            label?.setOnClickListener { v -> toggle() }
+            label.setOnClickListener { v -> toggle() }
+            label.isClickable = true
+            label.isFocusable = true
+            label.isFocusableInTouchMode = true
+            editText.isFocusableInTouchMode = true
+            editText.isFocusable = true
         } else {
             editText.keyListener = null
-            label?.setOnClickListener(null)
+            label.setOnClickListener(null)
+            label.isClickable = false
+            label.isFocusable = false
+            label.isFocusableInTouchMode = false
+            editText.isFocusableInTouchMode = false
+            editText.isFocusable = false
         }
     }
 
-    private fun updateHint(hint: String?) {
-        label?.text = hint ?: ""
+    fun updateHint(hint: String?) {
+        label.text = hint ?: ""
         editText.hint = ""
         hintText = hint ?: ""
     }
 
     @ColorInt
-    fun adjustAlpha(@ColorInt color: Int, factor: Float): Int {
+    private fun adjustAlpha(@ColorInt color: Int, factor: Float): Int {
         val alpha = Math.round(Color.alpha(color) * factor)
         val red = Color.red(color)
         val green = Color.green(color)
@@ -377,10 +364,10 @@ class ExpandableHintText : FrameLayout {
 
     private fun customizeFromAttributes() {
         if (textColor != Int.MIN_VALUE) {
-            label?.setTextColor(adjustAlpha(textColor, 0.7f))
+            label.setTextColor(adjustAlpha(textColor, 0.7f))
             editText.setTextColor(textColor)
         } else {
-            (label?.currentTextColor ?: Color.WHITE).let {
+            label.currentTextColor.let {
                 textColor = it
                 editText.setTextColor(it)
             }
@@ -390,12 +377,17 @@ class ExpandableHintText : FrameLayout {
             image.setImageDrawable(ContextCompat.getDrawable(context, imageDrawableId))
             image.setColorFilter(imageColour)
 
-            label?.setPaddingRelative(
-                label!!.paddingStart + labelPadding,
-                label!!.paddingTop,
-                label!!.paddingEnd,
-                label!!.paddingBottom
-            )
+            label.apply {
+                post {
+                    setPaddingRelative(
+                        paddingStart + labelPadding,
+                        paddingTop,
+                        paddingEnd,
+                        paddingBottom
+                    )
+                }
+
+            }
         } else {
             image.visibility = View.GONE
         }
@@ -405,6 +397,8 @@ class ExpandableHintText : FrameLayout {
         setCursorColor(textColor)
 
         editText.setText(presetText)
+
+        updateHint(hintText)
     }
 
     private fun setCursorColor(@ColorInt color: Int) {
