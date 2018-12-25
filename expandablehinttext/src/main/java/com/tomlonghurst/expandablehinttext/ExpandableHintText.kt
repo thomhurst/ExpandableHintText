@@ -16,6 +16,7 @@ import android.util.Property
 import android.view.View
 import android.view.WindowManager
 import android.view.animation.DecelerateInterpolator
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.FrameLayout
 import android.widget.TextView
@@ -48,6 +49,7 @@ class ExpandableHintText : FrameLayout {
     private var floatingLabelColor = Color.WHITE
     private var textBoxColor: Int = Color.WHITE
     private var presetText: String? = null
+    private var inputType: Int = -1
     private val labelPadding by lazy {
         if (imageDrawableId == -1) {
             0
@@ -268,6 +270,7 @@ class ExpandableHintText : FrameLayout {
             hintText = styledAttrs.getString(R.styleable.ExpandableHintText_android_hint) ?: ""
             textBoxColor = styledAttrs.getColor(R.styleable.ExpandableHintText_textBoxColor, Color.WHITE)
             presetText = styledAttrs.getString(R.styleable.ExpandableHintText_android_text)
+            inputType = styledAttrs.getInt(R.styleable.ExpandableHintText_android_inputType, EditorInfo.TYPE_NULL)
         } catch (e: Exception) {
             e.printStackTrace()
         } finally {
@@ -399,6 +402,8 @@ class ExpandableHintText : FrameLayout {
         editText.setText(presetText)
 
         updateHint(hintText)
+
+        editText.inputType = inputType
     }
 
     private fun setCursorColor(@ColorInt color: Int) {
