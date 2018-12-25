@@ -50,6 +50,7 @@ class ExpandableHintText : FrameLayout {
     private var textBoxColor: Int = Color.WHITE
     private var presetText: String? = null
     private var inputType: Int = -1
+    private var maxLines: Int = -1
     private val labelPadding by lazy {
         if (imageDrawableId == -1) {
             0
@@ -271,6 +272,7 @@ class ExpandableHintText : FrameLayout {
             textBoxColor = styledAttrs.getColor(R.styleable.ExpandableHintText_textBoxColor, Color.WHITE)
             presetText = styledAttrs.getString(R.styleable.ExpandableHintText_android_text)
             inputType = styledAttrs.getInt(R.styleable.ExpandableHintText_android_inputType, EditorInfo.TYPE_NULL)
+            maxLines = styledAttrs.getInt(R.styleable.ExpandableHintText_android_maxLines, 1)
         } catch (e: Exception) {
             e.printStackTrace()
         } finally {
@@ -404,6 +406,7 @@ class ExpandableHintText : FrameLayout {
         updateHint(hintText)
 
         editText.inputType = inputType
+        editText.maxLines = maxLines
     }
 
     private fun setCursorColor(@ColorInt color: Int) {

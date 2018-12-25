@@ -14,5 +14,6 @@
         <attr name="android:text" />
         <attr name="android:textColor" />
         <attr name="android:inputType" />
+        <attr name="android:maxLines" />
     </declare-styleable>
 </resources>
