@@ -3,20 +3,16 @@ package com.tomlonghurst.expandablehinttext
 import android.animation.Animator
 import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
-import android.app.Activity
 import android.content.Context
 import android.content.res.TypedArray
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.text.Editable
 import android.text.TextWatcher
-import android.text.method.KeyListener
 import android.util.AttributeSet
 import android.util.Property
 import android.view.View
-import android.view.WindowManager
 import android.view.animation.DecelerateInterpolator
-import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.FrameLayout
 import android.widget.TextView
@@ -45,7 +41,6 @@ class ExpandableHintText : FrameLayout {
     private var textSize: Float = -1f
     private var imageDrawableId = -1
     private var cardCollapsedHeight = -1
-    private var customHasFocus = true
     private var imageColour = Color.BLACK
     private var floatingLabelColor = Color.WHITE
     private var textBoxColor: Int = Color.WHITE
@@ -59,9 +54,7 @@ class ExpandableHintText : FrameLayout {
             getDp(45)
         }
     }
-
-    private lateinit var oldKeyListener: KeyListener
-    private var oldOnClickListener: OnClickListener? = null
+    private var customIsEnabled: Boolean = true
 
     constructor(context: Context) : super(context) {
         init()
@@ -79,6 +72,7 @@ class ExpandableHintText : FrameLayout {
 
     private fun init() {
         View.inflate(context, R.layout.eht_layout, this)
+        addEditText()
         inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     }
 
@@ -86,7 +80,6 @@ class ExpandableHintText : FrameLayout {
         val scale = context.resources.displayMetrics.density
         return (int * scale + 0.5f).toInt()
     }
-
 
 
     private fun toggle() {
@@ -132,12 +125,12 @@ class ExpandableHintText : FrameLayout {
         view.setTextColor(startColour)
 
         val property = object : Property<TextView, Int>(Int::class.javaPrimitiveType, "textColor") {
-            override fun get(`object`: TextView): Int {
-                return `object`.currentTextColor
+            override fun get(textView: TextView): Int {
+                return textView.currentTextColor
             }
 
-            override fun set(`object`: TextView, value: Int?) {
-                `object`.setTextColor(value!!)
+            override fun set(textView: TextView, value: Int?) {
+                textView.setTextColor(value!!)
             }
         }
 
@@ -152,7 +145,6 @@ class ExpandableHintText : FrameLayout {
 
             override fun onAnimationEnd(animation: Animator) {
                 view.setTextColor(endColour)
-                editEditText()
             }
 
             override fun onAnimationCancel(animation: Animator) {
@@ -196,19 +188,9 @@ class ExpandableHintText : FrameLayout {
     private fun editEditText() {
         if (isEnabled && isExpanded) {
             editText.post {
-                inputMethodManager.showSoftInput(editText, 0)
+                editText.requestFocus()
+                inputMethodManager.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT)
             }
-        }
-    }
-
-    private fun setHasFocus(hasFocus: Boolean) {
-        this.customHasFocus = hasFocus
-
-        if (hasFocus) {
-            expand()
-
-        } else {
-            reduce()
         }
     }
 
@@ -216,7 +198,7 @@ class ExpandableHintText : FrameLayout {
         editText = ExpandableEditText(context).apply {
             setOnBackPressListener {
                 editText.clearFocus()
-                card.clearFocus()
+                card?.clearFocus()
             }
 
             setOnFocusChangeListener { v, hasFocus ->
@@ -248,8 +230,6 @@ class ExpandableHintText : FrameLayout {
             post {
                 setPaddingRelative(getDp(10), paddingTop, paddingEnd, paddingBottom)
             }
-
-            (context as? Activity)?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         }
     }
 
@@ -267,14 +247,13 @@ class ExpandableHintText : FrameLayout {
                 R.styleable.ExpandableHintText_cardCollapsedHeight,
                 context.resources.getDimensionPixelOffset(R.dimen.cardHeight_initial)
             )
-            customHasFocus = styledAttrs.getBoolean(R.styleable.ExpandableHintText_isFocusedByDefault, false)
-            isEnabled = styledAttrs.getBoolean(R.styleable.ExpandableHintText_android_enabled, true)
+            customIsEnabled = styledAttrs.getBoolean(R.styleable.ExpandableHintText_android_enabled, true)
             hintText = styledAttrs.getString(R.styleable.ExpandableHintText_android_hint) ?: ""
             textBoxColor = styledAttrs.getColor(R.styleable.ExpandableHintText_textBoxColor, Color.WHITE)
             presetText = styledAttrs.getString(R.styleable.ExpandableHintText_android_text)
-            inputType = styledAttrs.getInt(R.styleable.ExpandableHintText_android_inputType, EditorInfo.TYPE_NULL)
-            maxLines = styledAttrs.getInt(R.styleable.ExpandableHintText_android_maxLines, 1)
-            textSize = styledAttrs.getFloat(R.styleable.ExpandableHintText_android_textSize, label.textSize)
+            inputType = styledAttrs.getInt(R.styleable.ExpandableHintText_android_inputType, Int.MIN_VALUE)
+            maxLines = styledAttrs.getInt(R.styleable.ExpandableHintText_android_maxLines, -1)
+            textSize = styledAttrs.getFloat(R.styleable.ExpandableHintText_android_textSize, 16f)
         } catch (e: Exception) {
             e.printStackTrace()
         } finally {
@@ -285,18 +264,14 @@ class ExpandableHintText : FrameLayout {
 
     override fun setOnClickListener(l: View.OnClickListener?) {
         super.setOnClickListener(l)
-        oldOnClickListener = l
         editText.setOnClickListener(l)
+        card.setOnClickListener(l)
     }
 
     override fun onFinishInflate() {
         super.onFinishInflate()
 
-        addEditText()
-
         card.addView(editText)
-
-        setHasFocus(customHasFocus)
 
         label.pivotX = 0f
         label.pivotY = 0f
@@ -315,42 +290,32 @@ class ExpandableHintText : FrameLayout {
             label.bringToFront()
         }
 
-        this.setOnClickListener { v -> toggle() }
-
         editText.post {
             editText.clearFocus()
             editText.bringToFront()
         }
 
-        oldKeyListener = editText.keyListener
-
+        isEnabled = customIsEnabled
     }
 
     override fun setEnabled(enabled: Boolean) {
-        if (!::editText.isInitialized) {
-            return
-        }
-
         super.setEnabled(enabled)
 
-        editText.isEnabled = isEnabled
+        editText.isEnabled = enabled
 
-        if (isEnabled) {
-            editText.keyListener = oldKeyListener
-            label.setOnClickListener { v -> toggle() }
-            label.isClickable = true
-            label.isFocusable = true
-            label.isFocusableInTouchMode = true
-            editText.isFocusableInTouchMode = true
+        if (enabled) {
+            setOnClickListener {
+                toggle()
+                editEditText()
+            }
+            editText.isClickable = true
             editText.isFocusable = true
+            editText.isFocusableInTouchMode = true
         } else {
-            editText.keyListener = null
-            label.setOnClickListener(null)
-            label.isClickable = false
-            label.isFocusable = false
-            label.isFocusableInTouchMode = false
-            editText.isFocusableInTouchMode = false
+            setOnClickListener(null)
+            editText.isClickable = false
             editText.isFocusable = false
+            editText.isFocusableInTouchMode = false
         }
     }
 
@@ -407,8 +372,13 @@ class ExpandableHintText : FrameLayout {
 
         updateHint(hintText)
 
-        editText.inputType = inputType
-        editText.maxLines = maxLines
+        if(inputType != Int.MIN_VALUE) {
+            editText.inputType = inputType
+        }
+
+        if(maxLines != -1) {
+            editText.maxLines = maxLines
+        }
 
         editText.textSize = textSize
         label.textSize = textSize

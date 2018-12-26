@@ -6,4 +6,6 @@
     <dimen name="cardHeight_initial">4dp</dimen>
     <dimen name="cardHeight_final">55dp</dimen>
     <dimen name="corner_radius">4dp</dimen>
+
+    <dimen name="text_default">14sp</dimen>
 </resources>
