@@ -23,9 +23,6 @@ import androidx.core.view.ViewCompat
 import com.tomlonghurst.expandablehinttext.extensions.beGone
 import com.tomlonghurst.expandablehinttext.extensions.beVisible
 import kotlinx.android.synthetic.main.eht_layout.view.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 
 class ExpandableHintText : FrameLayout {

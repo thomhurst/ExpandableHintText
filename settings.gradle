@@ -1,1 +1,4 @@
-include ':app', ':expandablehinttext'
+include ':expandablehinttext'
+if (!System.env.JITPACK) {
+    include ':app'
+}
