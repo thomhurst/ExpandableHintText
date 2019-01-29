@@ -8,7 +8,7 @@
         <attr name="image" format="reference"/>
         <attr name="imageColor" format="color"/>
         <attr name="android:enabled" format="boolean"/>
-        <attr name="animationDuration" format="integer"/>
+        <attr name="animationDurationMs" format="integer"/>
         <attr name="android:text" />
         <attr name="android:textColor" />
         <attr name="android:textSize" />

@@ -10,16 +10,16 @@ class ExpandableEditText : EditText {
     constructor(context: Context?) : super(context)
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
     constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
-    private var onBackPressed: (() -> Unit)? = null
+    private var onBackPressed: Runnable? = null
 
-    fun setOnBackPressListener(onBackPressed: () -> Unit) {
+    fun setOnBackPressListener(onBackPressed: Runnable?) {
         this.onBackPressed = onBackPressed
     }
 
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent?): Boolean {
         if (event?.keyCode == KeyEvent.KEYCODE_BACK) {
             this.clearFocus()
-            onBackPressed?.invoke()
+            onBackPressed?.run()
         }
         return super.onKeyPreIme(keyCode, event)
     }

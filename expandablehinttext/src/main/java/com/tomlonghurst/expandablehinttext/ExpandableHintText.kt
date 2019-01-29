@@ -17,9 +17,15 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.annotation.ColorInt
+import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
+import com.tomlonghurst.expandablehinttext.extensions.beGone
+import com.tomlonghurst.expandablehinttext.extensions.beVisible
 import kotlinx.android.synthetic.main.eht_layout.view.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 
 class ExpandableHintText : FrameLayout {
@@ -28,7 +34,16 @@ class ExpandableHintText : FrameLayout {
     lateinit var editText: ExpandableEditText
         private set
 
-    private var hintText: String = ""
+    private var hintText: String? = ""
+        set(value) {
+            field = value
+            label.post {
+                editText.post {
+                    label.text = hintText ?: ""
+                    editText.hint = ""
+                }
+            }
+        }
 
     private var labelTranslationY = -1
     private var labelTranslationX = -1
@@ -36,24 +51,134 @@ class ExpandableHintText : FrameLayout {
     var isExpanded = false
         private set
 
-    private var animationDuration = -1
-    private var textColor = Int.MIN_VALUE
-    private var textSize: Float = -1f
-    private var imageDrawableId = -1
+    var animationDurationMs = -1
+
+    @ColorInt
+    var textColor = Int.MIN_VALUE
+        set(value) {
+            field = value
+
+            label.post {
+                editText.post {
+                    if (textColor != Int.MIN_VALUE) {
+                        label.setTextColor(adjustAlpha(textColor, 0.7f))
+                        editText.setTextColor(textColor)
+                    } else {
+                        label.currentTextColor.let {
+                            this.textColor = it
+                            editText.setTextColor(it)
+                        }
+                    }
+                }
+            }
+        }
+
+    var textSize: Float = -1f
+        set(value) {
+            field = value
+
+            label.post {
+                editText.post {
+                    editText.textSize = textSize
+                    label.textSize = textSize
+                }
+            }
+        }
+
+    @DrawableRes
+    var imageDrawableId = -1
+        set(value) {
+            field = value
+
+            image.post {
+                if (imageDrawableId != -1) {
+                    image.apply {
+                        setImageDrawable(ContextCompat.getDrawable(context, imageDrawableId))
+                        setColorFilter(imageColour)
+                        image.beVisible()
+                    }
+
+                    label.apply {
+                        post {
+                            setPaddingRelative(
+                                paddingStart + labelPadding,
+                                paddingTop,
+                                paddingEnd,
+                                paddingBottom
+                            )
+                        }
+
+                    }
+                } else {
+                    image.beGone()
+                }
+            }
+        }
+
     private var cardCollapsedHeight = -1
-    private var imageColour = Color.BLACK
-    private var floatingLabelColor = Color.WHITE
-    private var textBoxColor: Int = Color.WHITE
-    private var presetText: String? = null
-    private var inputType: Int = -1
-    private var maxLines: Int = -1
-    private val labelPadding by lazy {
+
+
+    @ColorInt
+    var imageColour = Color.BLACK
+        set(value) {
+            field = value
+            image.post {
+                image.setColorFilter(imageColour)
+            }
+        }
+
+    @ColorInt
+    var floatingLabelColor = Color.WHITE
+
+    @ColorInt
+    var textBoxColor: Int = Color.WHITE
+        set(value) {
+            field = value
+
+            card.post {
+                card.background.setColorFilter(textBoxColor, PorterDuff.Mode.SRC_IN)
+            }
+        }
+
+    var editTextValue: String? = null
+        set(value) {
+            field = value
+
+            editText.post {
+                editText.setText(editTextValue)
+            }
+        }
+
+
+    var inputType: Int = -1
+        set(value) {
+            field = value
+
+            if (inputType != Int.MIN_VALUE) {
+                editText.post {
+                    editText.inputType = inputType
+                }
+            }
+        }
+
+    var maxLines: Int = -1
+        set(value) {
+            field = value
+
+            if (maxLines != -1) {
+                editText.post {
+                    editText.maxLines = maxLines
+                }
+            }
+        }
+
+    private val labelPadding get() =
         if (imageDrawableId == -1) {
             0
         } else {
             getDp(45)
         }
-    }
+
     private var customIsEnabled: Boolean = true
 
     constructor(context: Context) : super(context) {
@@ -61,13 +186,13 @@ class ExpandableHintText : FrameLayout {
     }
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
-        getAttributes(context, attrs)
         init()
+        getAttributes(context, attrs)
     }
 
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
-        getAttributes(context, attrs)
         init()
+        getAttributes(context, attrs)
     }
 
     private fun init() {
@@ -100,7 +225,7 @@ class ExpandableHintText : FrameLayout {
                 editText.apply {
                     post {
                         ViewCompat.animate(this)
-                            .alpha(0f).duration = animationDuration.toLong()
+                            .alpha(0f).duration = animationDurationMs.toLong()
                     }
                 }
 
@@ -110,7 +235,7 @@ class ExpandableHintText : FrameLayout {
                             .scaleX(1f)
                             .scaleY(1f)
                             .translationY(0f)
-                            .translationX(0f).duration = animationDuration.toLong()
+                            .translationX(0f).duration = animationDurationMs.toLong()
 
                         animateColours(this, this.currentTextColor, adjustAlpha(textColor, 0.7f))
                     }
@@ -135,7 +260,7 @@ class ExpandableHintText : FrameLayout {
         }
 
         val animator = ObjectAnimator.ofInt(view, property, endColour)
-        animator.duration = animationDuration.toLong()
+        animator.duration = animationDurationMs.toLong()
         animator.setEvaluator(ArgbEvaluator())
         animator.interpolator = DecelerateInterpolator(2f)
         animator.addListener(object : Animator.AnimatorListener {
@@ -163,7 +288,7 @@ class ExpandableHintText : FrameLayout {
 
             editText.post {
                 ViewCompat.animate(editText)
-                    .alpha(1f).duration = animationDuration.toLong()
+                    .alpha(1f).duration = animationDurationMs.toLong()
             }
 
             val miniatureScale = 0.7f
@@ -175,7 +300,7 @@ class ExpandableHintText : FrameLayout {
                         .scaleY(miniatureScale)
                         .translationY((-labelTranslationY).toFloat())
                         .translationX(-labelTranslationX.plus(labelPadding).times(miniatureScale)).duration =
-                            animationDuration.toLong()
+                        animationDurationMs.toLong()
 
                     animateColours(this, this.currentTextColor, floatingLabelColor)
                 }
@@ -196,10 +321,10 @@ class ExpandableHintText : FrameLayout {
 
     private fun addEditText() {
         editText = ExpandableEditText(context).apply {
-            setOnBackPressListener {
+            setOnBackPressListener(Runnable {
                 editText.clearFocus()
                 card?.clearFocus()
-            }
+            })
 
             setOnFocusChangeListener { v, hasFocus ->
                 if (!hasFocus && editText.text.toString().isBlank()) {
@@ -238,7 +363,7 @@ class ExpandableHintText : FrameLayout {
         try {
             styledAttrs = context.obtainStyledAttributes(attrs, R.styleable.ExpandableHintText)
 
-            animationDuration = styledAttrs.getInteger(R.styleable.ExpandableHintText_animationDuration, 400)
+            animationDurationMs = styledAttrs.getInteger(R.styleable.ExpandableHintText_animationDurationMs, 400)
             textColor = styledAttrs.getColor(R.styleable.ExpandableHintText_android_textColor, Int.MIN_VALUE)
             floatingLabelColor = styledAttrs.getColor(R.styleable.ExpandableHintText_floatingLabelColor, Color.BLACK)
             imageDrawableId = styledAttrs.getResourceId(R.styleable.ExpandableHintText_image, -1)
@@ -250,7 +375,7 @@ class ExpandableHintText : FrameLayout {
             customIsEnabled = styledAttrs.getBoolean(R.styleable.ExpandableHintText_android_enabled, true)
             hintText = styledAttrs.getString(R.styleable.ExpandableHintText_android_hint) ?: ""
             textBoxColor = styledAttrs.getColor(R.styleable.ExpandableHintText_textBoxColor, Color.WHITE)
-            presetText = styledAttrs.getString(R.styleable.ExpandableHintText_android_text)
+            editTextValue = styledAttrs.getString(R.styleable.ExpandableHintText_android_text)
             inputType = styledAttrs.getInt(R.styleable.ExpandableHintText_android_inputType, Int.MIN_VALUE)
             maxLines = styledAttrs.getInt(R.styleable.ExpandableHintText_android_maxLines, -1)
             textSize = styledAttrs.getFloat(R.styleable.ExpandableHintText_android_textSize, 16f)
@@ -271,28 +396,28 @@ class ExpandableHintText : FrameLayout {
     override fun onFinishInflate() {
         super.onFinishInflate()
 
-        card.addView(editText)
-
-        label.pivotX = 0f
-        label.pivotY = 0f
-
-        editText.setBackgroundColor(Color.TRANSPARENT)
-        editText.alpha = 0f
-
-        if (editText.text.toString().isNotBlank()) {
-            expand()
+        card.post {
+            card.addView(editText)
         }
 
         label.post {
+            label.pivotX = 0f
+            label.pivotY = 0f
             labelTranslationY = (label.layoutParams as FrameLayout.LayoutParams).topMargin
             labelTranslationX = label.paddingStart
-            customizeFromAttributes()
+            setCursorColor(textColor)
             label.bringToFront()
         }
 
         editText.post {
+            editText.setBackgroundColor(Color.TRANSPARENT)
+            editText.alpha = 0f
             editText.clearFocus()
             editText.bringToFront()
+
+            if (editText.text.toString().isNotBlank()) {
+                expand()
+            }
         }
 
         isEnabled = customIsEnabled
@@ -319,12 +444,6 @@ class ExpandableHintText : FrameLayout {
         }
     }
 
-    fun updateHint(hint: String?) {
-        label.text = hint ?: ""
-        editText.hint = ""
-        hintText = hint ?: ""
-    }
-
     @ColorInt
     private fun adjustAlpha(@ColorInt color: Int, factor: Float): Int {
         val alpha = Math.round(Color.alpha(color) * factor)
@@ -332,56 +451,6 @@ class ExpandableHintText : FrameLayout {
         val green = Color.green(color)
         val blue = Color.blue(color)
         return Color.argb(alpha, red, green, blue)
-    }
-
-    private fun customizeFromAttributes() {
-        if (textColor != Int.MIN_VALUE) {
-            label.setTextColor(adjustAlpha(textColor, 0.7f))
-            editText.setTextColor(textColor)
-        } else {
-            label.currentTextColor.let {
-                textColor = it
-                editText.setTextColor(it)
-            }
-        }
-
-        if (imageDrawableId != -1) {
-            image.setImageDrawable(ContextCompat.getDrawable(context, imageDrawableId))
-            image.setColorFilter(imageColour)
-
-            label.apply {
-                post {
-                    setPaddingRelative(
-                        paddingStart + labelPadding,
-                        paddingTop,
-                        paddingEnd,
-                        paddingBottom
-                    )
-                }
-
-            }
-        } else {
-            image.visibility = View.GONE
-        }
-
-        card.background.setColorFilter(textBoxColor, PorterDuff.Mode.SRC_IN)
-
-        setCursorColor(textColor)
-
-        editText.setText(presetText)
-
-        updateHint(hintText)
-
-        if(inputType != Int.MIN_VALUE) {
-            editText.inputType = inputType
-        }
-
-        if(maxLines != -1) {
-            editText.maxLines = maxLines
-        }
-
-        editText.textSize = textSize
-        label.textSize = textSize
     }
 
     private fun setCursorColor(@ColorInt color: Int) {

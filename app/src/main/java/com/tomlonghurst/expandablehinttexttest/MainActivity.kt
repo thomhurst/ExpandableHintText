@@ -1,8 +1,7 @@
-package com.tomlonghurst.expandablehinttextexample
+package com.tomlonghurst.expandablehinttexttest
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.tomlonghurst.expandablehinttext.R
 
 class MainActivity : AppCompatActivity() {
 
