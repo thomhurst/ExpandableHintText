@@ -34,7 +34,7 @@ class ExpandableHintText : FrameLayout {
     lateinit var editText: ExpandableEditText
         private set
 
-    private var hintText: String? = ""
+    var hintText: String? = ""
         set(value) {
             field = value
             label.post {
