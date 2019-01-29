@@ -1,13 +1,29 @@
+buildscript {
+    repositories {
+        maven { url 'https://maven.fabric.io/public' }
+        mavenCentral()
+        jcenter()
+        google()
+        maven { url 'https://jitpack.io' }
+    }
+
+    dependencies {
+        classpath "com.github.ben-manes:gradle-versions-plugin:0.20.0"
+    }
+}
+
 apply plugin: 'com.android.library'
 
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'org.jetbrains.kotlin.android.extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: "com.github.ben-manes.versions"
 
 android {
-    compileSdkVersion 28
+    buildToolsVersion "28.0.3"
 
+    compileSdkVersion 28
 
 
     defaultConfig {
