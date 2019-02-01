@@ -14,6 +14,7 @@ import android.util.Property
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.annotation.ColorInt
@@ -22,6 +23,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import com.tomlonghurst.expandablehinttext.extensions.beGone
 import com.tomlonghurst.expandablehinttext.extensions.beVisible
+import com.tomlonghurst.expandablehinttext.extensions.onGlobalLayout
 import kotlinx.android.synthetic.main.eht_layout.view.*
 
 
@@ -29,6 +31,14 @@ class ExpandableHintText : FrameLayout {
     private lateinit var inputMethodManager: InputMethodManager
 
     private lateinit var editText: ExpandableEditText
+
+    fun useEditText(action: (editText: EditText) -> Unit) {
+        editText.onGlobalLayout {
+            editText.post {
+                action.invoke(editText)
+            }
+        }
+    }
 
     var hintText: String? = ""
         set(value) {
