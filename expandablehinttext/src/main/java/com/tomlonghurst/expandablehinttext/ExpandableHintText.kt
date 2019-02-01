@@ -28,8 +28,7 @@ import kotlinx.android.synthetic.main.eht_layout.view.*
 class ExpandableHintText : FrameLayout {
     private lateinit var inputMethodManager: InputMethodManager
 
-    lateinit var editText: ExpandableEditText
-        private set
+    private lateinit var editText: ExpandableEditText
 
     var hintText: String? = ""
         set(value) {
@@ -137,12 +136,12 @@ class ExpandableHintText : FrameLayout {
             }
         }
 
-    var editTextValue: String? = null
+    var text: String? = null
         set(value) {
             field = value
 
             editText.post {
-                editText.setText(editTextValue)
+                editText.setText(text)
             }
         }
 
@@ -372,7 +371,7 @@ class ExpandableHintText : FrameLayout {
             customIsEnabled = styledAttrs.getBoolean(R.styleable.ExpandableHintText_android_enabled, true)
             hintText = styledAttrs.getString(R.styleable.ExpandableHintText_android_hint) ?: ""
             textBoxColor = styledAttrs.getColor(R.styleable.ExpandableHintText_textBoxColor, Color.WHITE)
-            editTextValue = styledAttrs.getString(R.styleable.ExpandableHintText_android_text)
+            text = styledAttrs.getString(R.styleable.ExpandableHintText_android_text)
             inputType = styledAttrs.getInt(R.styleable.ExpandableHintText_android_inputType, Int.MIN_VALUE)
             maxLines = styledAttrs.getInt(R.styleable.ExpandableHintText_android_maxLines, -1)
             textSize = styledAttrs.getFloat(R.styleable.ExpandableHintText_android_textSize, 16f)
