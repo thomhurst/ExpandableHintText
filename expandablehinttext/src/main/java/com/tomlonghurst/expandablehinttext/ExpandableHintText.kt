@@ -186,7 +186,15 @@ class ExpandableHintText : FrameLayout {
             getDp(45)
         }
 
-    private var customIsEnabled: Boolean = true
+    var readOnly: Boolean = false
+    set(value) {
+        field = value
+        editText.isEnabled = !value
+        editText.isFocusable = !value
+        editText.isClickable = !value
+        editText.isFocusableInTouchMode = !value
+        isEnabled = !value
+    }
 
     constructor(context: Context) : super(context) {
         init()
@@ -203,9 +211,9 @@ class ExpandableHintText : FrameLayout {
     }
 
     private fun init() {
+        inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         View.inflate(context, R.layout.eht_layout, this)
         addEditText()
-        inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     }
 
     private fun getDp(int: Int): Int {
@@ -379,7 +387,7 @@ class ExpandableHintText : FrameLayout {
                 R.styleable.ExpandableHintText_cardCollapsedHeight,
                 context.resources.getDimensionPixelOffset(R.dimen.cardHeight_initial)
             )
-            customIsEnabled = styledAttrs.getBoolean(R.styleable.ExpandableHintText_android_enabled, true)
+            readOnly = styledAttrs.getBoolean(R.styleable.ExpandableHintText_readOnly, false)
             hintText = styledAttrs.getString(R.styleable.ExpandableHintText_android_hint) ?: ""
             textBoxColor = styledAttrs.getColor(R.styleable.ExpandableHintText_textBoxColor, Color.WHITE)
             text = styledAttrs.getString(R.styleable.ExpandableHintText_android_text)
@@ -396,7 +404,6 @@ class ExpandableHintText : FrameLayout {
 
     override fun setOnClickListener(l: View.OnClickListener?) {
         super.setOnClickListener(l)
-        editText.setOnClickListener(l)
         card.setOnClickListener(l)
     }
 
@@ -426,8 +433,6 @@ class ExpandableHintText : FrameLayout {
                 expand()
             }
         }
-
-        isEnabled = customIsEnabled
     }
 
     override fun setEnabled(enabled: Boolean) {
