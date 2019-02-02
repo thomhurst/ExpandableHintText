@@ -3,6 +3,7 @@ package com.tomlonghurst.expandablehinttext
 import android.content.Context
 import android.util.AttributeSet
 import android.view.KeyEvent
+import android.view.MotionEvent
 import android.widget.EditText
 
 class ExpandableEditText : EditText {
@@ -14,6 +15,21 @@ class ExpandableEditText : EditText {
 
     fun setOnBackPressListener(onBackPressed: Runnable?) {
         this.onBackPressed = onBackPressed
+    }
+
+    private var clickable: Boolean = true
+
+    override fun setClickable(clickable: Boolean) {
+        super.setClickable(clickable)
+        this.clickable = clickable
+    }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        return if(clickable) {
+            super.onTouchEvent(event)
+        } else {
+            false
+        }
     }
 
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent?): Boolean {

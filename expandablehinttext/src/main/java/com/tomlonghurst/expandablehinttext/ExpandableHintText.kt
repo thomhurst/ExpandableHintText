@@ -435,9 +435,7 @@ class ExpandableHintText : FrameLayout {
         super.setEnabled(enabled)
 
         editText.isEnabled = enabled
-        editText.isFocusable = enabled
         editText.isClickable = enabled
-        editText.isFocusableInTouchMode = enabled
 
         if (enabled) {
             setOnClickListener {
