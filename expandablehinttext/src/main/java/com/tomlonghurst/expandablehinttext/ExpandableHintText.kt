@@ -152,6 +152,7 @@ class ExpandableHintText : FrameLayout {
 
             editText.post {
                 editText.setText(text)
+                invalidate()
             }
         }
 
