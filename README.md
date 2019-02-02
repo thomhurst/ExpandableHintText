@@ -1,6 +1,27 @@
 # ExpandableHintText
 A Customisable Pretty EditText Layout for Android
 
+[![](https://jitpack.io/v/thomhurst/ExpandableHintText.svg)](https://jitpack.io/#thomhurst/ExpandableHintText)
+
+### Install
+
+Add Jitpack to your repositories in your `build.gradle` file
+
+```groovy
+allprojects {
+    repositories {
+      // ...
+      maven { url 'https://jitpack.io' }
+    }
+}
+```
+
+Add the below to your dependencies, again in your gradle.build file
+
+```groovy
+implementation 'com.github.thomhurst:ExpandableHintText:{version}'
+```
+
 ### On Click Animation
 ![](https://github.com/thomhurst/ExpandableHintText/blob/master/images/expandable-hinttext-gif.gif)
 
