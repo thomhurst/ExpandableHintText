@@ -66,3 +66,9 @@ implementation 'com.github.thomhurst:ExpandableHintText:{version}'
                 app:image="@drawable/ic_baseline_sentiment_very_satisfied_24px"
         />
 ```
+
+
+
+If you enjoy, please buy me a coffee :)
+
+<a href="https://www.buymeacoffee.com/tomhurst" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
