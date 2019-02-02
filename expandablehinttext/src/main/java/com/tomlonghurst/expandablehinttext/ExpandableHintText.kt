@@ -193,7 +193,9 @@ class ExpandableHintText : FrameLayout {
         editText.isFocusable = !value
         editText.isClickable = !value
         editText.isFocusableInTouchMode = !value
-        isEnabled = !value
+        if(isEnabled != !value) {
+            isEnabled = !value
+        }
     }
 
     constructor(context: Context) : super(context) {
@@ -438,21 +440,17 @@ class ExpandableHintText : FrameLayout {
     override fun setEnabled(enabled: Boolean) {
         super.setEnabled(enabled)
 
-        editText.isEnabled = enabled
+        if(readOnly != !enabled) {
+            readOnly = !enabled
+        }
 
         if (enabled) {
             setOnClickListener {
                 toggle()
                 editEditText()
             }
-            editText.isClickable = true
-            editText.isFocusable = true
-            editText.isFocusableInTouchMode = true
         } else {
             setOnClickListener(null)
-            editText.isClickable = false
-            editText.isFocusable = false
-            editText.isFocusableInTouchMode = false
         }
     }
 
