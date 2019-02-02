@@ -186,17 +186,11 @@ class ExpandableHintText : FrameLayout {
             getDp(45)
         }
 
-    var readOnly: Boolean = false
-    set(value) {
-        field = value
-        editText.isEnabled = !value
-        editText.isFocusable = !value
-        editText.isClickable = !value
-        editText.isFocusableInTouchMode = !value
-        if(isEnabled != !value) {
+    var readOnly: Boolean
+        set(value) {
             isEnabled = !value
         }
-    }
+        get() = !isEnabled
 
     constructor(context: Context) : super(context) {
         init()
@@ -440,9 +434,10 @@ class ExpandableHintText : FrameLayout {
     override fun setEnabled(enabled: Boolean) {
         super.setEnabled(enabled)
 
-        if(readOnly != !enabled) {
-            readOnly = !enabled
-        }
+        editText.isEnabled = enabled
+        editText.isFocusable = enabled
+        editText.isClickable = enabled
+        editText.isFocusableInTouchMode = enabled
 
         if (enabled) {
             setOnClickListener {
