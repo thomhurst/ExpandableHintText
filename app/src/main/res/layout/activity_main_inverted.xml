@@ -33,13 +33,13 @@
                 android:layout_marginTop="32dp"
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
-                app:imageColor="@color/white"
-                app:image="@drawable/ic_baseline_sentiment_very_satisfied_24px"
                 android:text="Tom"
+                android:textColor="@android:color/white"
                 android:hint="First Name"
                 app:textBoxColor="@color/colorPrimaryDark"
-                android:textColor="@android:color/white"
                 app:floatingLabelColor="@color/colorPrimaryDark"
+                app:imageColor="@color/white"
+                app:image="@drawable/ic_baseline_sentiment_very_satisfied_24px"
         />
 
         <com.tomlonghurst.expandablehinttext.ExpandableHintText

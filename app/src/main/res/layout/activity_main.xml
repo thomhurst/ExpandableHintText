@@ -25,7 +25,7 @@
                 app:image="@drawable/ic_baseline_sentiment_very_satisfied_24px"
                 android:hint="First Name"
                 app:textBoxColor="@android:color/white"
-                android:textColor="@android:color/black"
+                android:textColor="@color/colorPrimaryDark"
                 app:floatingLabelColor="@android:color/white"
         />
 
@@ -33,13 +33,13 @@
                 android:layout_marginTop="32dp"
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
-                app:imageColor="@color/colorPrimary"
-                app:image="@drawable/ic_baseline_sentiment_very_satisfied_24px"
                 android:text="Tom"
+                android:textColor="@color/colorPrimaryDark"
                 android:hint="First Name"
                 app:textBoxColor="@android:color/white"
-                android:textColor="@color/colorPrimaryDark"
                 app:floatingLabelColor="@android:color/white"
+                app:imageColor="@color/colorPrimary"
+                app:image="@drawable/ic_baseline_sentiment_very_satisfied_24px"
         />
 
         <com.tomlonghurst.expandablehinttext.ExpandableHintText
