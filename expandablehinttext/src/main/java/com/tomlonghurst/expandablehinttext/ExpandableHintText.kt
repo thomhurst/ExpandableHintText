@@ -28,6 +28,7 @@ import kotlinx.android.synthetic.main.eht_layout.view.*
 /**
  * A view used for user input
  */
+@Suppress("LargeClass", "TooManyFunctions")
 class ExpandableHintText : FrameLayout {
 
     private var inputMethodManager: InputMethodManager? = null
