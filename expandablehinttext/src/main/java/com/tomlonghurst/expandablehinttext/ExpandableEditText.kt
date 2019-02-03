@@ -6,6 +6,9 @@ import android.view.KeyEvent
 import android.view.MotionEvent
 import android.widget.EditText
 
+/**
+ * Edit Text for Expandable Hint Text
+ */
 class ExpandableEditText : EditText {
 
     constructor(context: Context?) : super(context)
@@ -13,6 +16,10 @@ class ExpandableEditText : EditText {
     constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
     private var onBackPressed: Runnable? = null
 
+    /**
+     * Custom event for clicking back when on this view is active
+     * @sample ExpandableEditText.setOnBackPressListener { Runnable { println("Back Pressed") } }
+     */
     fun setOnBackPressListener(onBackPressed: Runnable?) {
         this.onBackPressed = onBackPressed
     }
@@ -25,7 +32,7 @@ class ExpandableEditText : EditText {
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        return if(clickable) {
+        return if (clickable) {
             super.onTouchEvent(event)
         } else {
             false

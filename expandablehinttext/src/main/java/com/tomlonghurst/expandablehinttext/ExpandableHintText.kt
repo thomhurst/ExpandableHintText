@@ -4,7 +4,6 @@ import android.animation.Animator
 import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
 import android.content.Context
-import android.content.res.TypedArray
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.text.Editable
@@ -26,12 +25,18 @@ import com.tomlonghurst.expandablehinttext.extensions.beVisible
 import com.tomlonghurst.expandablehinttext.extensions.onGlobalLayout
 import kotlinx.android.synthetic.main.eht_layout.view.*
 
-
+/**
+ * A view used for user input
+ */
 class ExpandableHintText : FrameLayout {
-    private lateinit var inputMethodManager: InputMethodManager
 
+    private var inputMethodManager: InputMethodManager? = null
     private lateinit var editText: ExpandableEditText
 
+    /**
+     * Get the Edit Text when it is rendered and ready
+     * @sample ExpandableHintText.useEditText { editText -> editText.height = 500 }
+     */
     fun useEditText(action: (editText: EditText) -> Unit) {
         editText.onGlobalLayout {
             editText.post {
@@ -40,6 +45,9 @@ class ExpandableHintText : FrameLayout {
         }
     }
 
+    /**
+     * The hint that tells the user what they should input
+     */
     var hintText: String? = ""
         set(value) {
             field = value
@@ -54,11 +62,22 @@ class ExpandableHintText : FrameLayout {
     private var labelTranslationY = -1
     private var labelTranslationX = -1
 
+    /**
+     * Boolean for is the field expanded
+     * i.e. Is the hint floating as a label above the edit text?
+     */
     var isExpanded = false
         private set
 
+    /**
+     * Animation time in milliseconds
+     */
     var animationDurationMs = -1
 
+    /**
+     * Color for the text
+     * @sample ExpandableHintText.textColor = Color.WHITE
+     */
     @ColorInt
     var textColor = Int.MIN_VALUE
         set(value) {
@@ -67,18 +86,22 @@ class ExpandableHintText : FrameLayout {
             label.post {
                 editText.post {
                     if (textColor != Int.MIN_VALUE) {
-                        label.setTextColor(adjustAlpha(textColor, 0.7f))
+                        label.setTextColor(adjustAlpha(textColor, DEFAULT_HINT_OPACITY))
                         editText.setTextColor(textColor)
                     } else {
-                        label.currentTextColor.let {
-                            this.textColor = it
-                            editText.setTextColor(it)
+                        label.currentTextColor.let { currentTextColor ->
+                            this.textColor = currentTextColor
+                            editText.setTextColor(currentTextColor)
                         }
                     }
                 }
             }
         }
 
+    /**
+     * Size for the text
+     * @sample ExpandableHintText.textSize = 16f
+     */
     var textSize: Float = -1f
         set(value) {
             field = value
@@ -91,6 +114,10 @@ class ExpandableHintText : FrameLayout {
             }
         }
 
+    /**
+     * Image for the text field
+     * @sample ExpandableHintText.imageDrawableId = R.drawable.logo
+     */
     @DrawableRes
     var imageDrawableId = -1
         set(value) {
@@ -113,7 +140,6 @@ class ExpandableHintText : FrameLayout {
                                 paddingBottom
                             )
                         }
-
                     }
                 } else {
                     image.beGone()
@@ -123,7 +149,10 @@ class ExpandableHintText : FrameLayout {
 
     private var cardCollapsedHeight = -1
 
-
+    /**
+     * Color for the image
+     * @sample ExpandableHintText.imageColour = Color.WHITE
+     */
     @ColorInt
     var imageColour = Color.BLACK
         set(value) {
@@ -133,9 +162,17 @@ class ExpandableHintText : FrameLayout {
             }
         }
 
+    /**
+     * Color for the text hint label when floating
+     * @sample ExpandableHintText.floatingLabelColor = Color.WHITE
+     */
     @ColorInt
     var floatingLabelColor = Color.WHITE
 
+    /**
+     * Color for the text field background
+     * @sample ExpandableHintText.textBoxColor = Color.WHITE
+     */
     @ColorInt
     var textBoxColor: Int = Color.WHITE
         set(value) {
@@ -146,6 +183,10 @@ class ExpandableHintText : FrameLayout {
             }
         }
 
+    /**
+     * Set or Get the text of the input field
+     * @sample ExpandableHintText.text = "Blah"
+     */
     var text: String? = null
         set(value) {
             field = value
@@ -156,7 +197,10 @@ class ExpandableHintText : FrameLayout {
             }
         }
 
-
+    /**
+     * See the input type for the text
+     * @sample ExpandableHintText.inputType = InputType.TYPE_CLASS_NUMBER
+     */
     var inputType: Int = -1
         set(value) {
             field = value
@@ -168,6 +212,10 @@ class ExpandableHintText : FrameLayout {
             }
         }
 
+    /**
+     * Max lines to be displayed
+     * @sample ExpandableHintText.maxLines = 5
+     */
     var maxLines: Int = -1
         set(value) {
             field = value
@@ -183,9 +231,13 @@ class ExpandableHintText : FrameLayout {
         if (imageDrawableId == -1) {
             0
         } else {
-            getDp(45)
+            ViewHelper.getDp(context, FORTY_FIVE_DP)
         }
 
+    /**
+     * Boolean for if the input is disabled and read only
+     * @sample ExpandableHintText.readOnly = true
+     */
     var readOnly: Boolean
         set(value) {
             isEnabled = !value
@@ -207,16 +259,10 @@ class ExpandableHintText : FrameLayout {
     }
 
     private fun init() {
-        inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
         View.inflate(context, R.layout.eht_layout, this)
         addEditText()
     }
-
-    private fun getDp(int: Int): Int {
-        val scale = context.resources.displayMetrics.density
-        return (int * scale + 0.5f).toInt()
-    }
-
 
     private fun toggle() {
         if (isEnabled) {
@@ -228,7 +274,7 @@ class ExpandableHintText : FrameLayout {
         }
     }
 
-    fun reduce() {
+    private fun reduce() {
         if (isExpanded) {
 
             if (editText.text.toString().isBlank()) {
@@ -266,35 +312,34 @@ class ExpandableHintText : FrameLayout {
             }
 
             override fun set(textView: TextView, value: Int?) {
-                textView.setTextColor(value!!)
+                value ?: return
+                textView.setTextColor(value)
             }
         }
 
-        val animator = ObjectAnimator.ofInt(view, property, endColour)
-        animator.duration = animationDurationMs.toLong()
-        animator.setEvaluator(ArgbEvaluator())
-        animator.interpolator = DecelerateInterpolator(2f)
-        animator.addListener(object : Animator.AnimatorListener {
-            override fun onAnimationStart(animation: Animator) {
+        ObjectAnimator.ofInt(view, property, endColour).apply {
+            duration = animationDurationMs.toLong()
+            setEvaluator(ArgbEvaluator())
+            interpolator = DecelerateInterpolator(2f)
+            addListener(object : Animator.AnimatorListener {
+                override fun onAnimationStart(animation: Animator) {
+                }
 
-            }
+                override fun onAnimationEnd(animation: Animator) {
+                    view.setTextColor(endColour)
+                }
 
-            override fun onAnimationEnd(animation: Animator) {
-                view.setTextColor(endColour)
-            }
+                override fun onAnimationCancel(animation: Animator) {
+                }
 
-            override fun onAnimationCancel(animation: Animator) {
-
-            }
-
-            override fun onAnimationRepeat(animation: Animator) {
-
-            }
-        })
-        animator.start()
+                override fun onAnimationRepeat(animation: Animator) {
+                }
+            })
+            start()
+        }
     }
 
-    fun expand() {
+    private fun expand() {
         if (!isExpanded) {
 
             editText.post {
@@ -325,7 +370,7 @@ class ExpandableHintText : FrameLayout {
         if (isEnabled && isExpanded) {
             editText.post {
                 editText.requestFocus()
-                inputMethodManager.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT)
+                inputMethodManager?.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT)
             }
         }
     }
@@ -337,7 +382,7 @@ class ExpandableHintText : FrameLayout {
                 card?.clearFocus()
             })
 
-            setOnFocusChangeListener { v, hasFocus ->
+            setOnFocusChangeListener { _, hasFocus ->
                 if (!hasFocus && editText.text.toString().isBlank()) {
                     reduce()
                 }
@@ -354,48 +399,38 @@ class ExpandableHintText : FrameLayout {
                 }
 
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-
                 }
 
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-
                 }
-
             })
 
             post {
-                setPaddingRelative(getDp(10), paddingTop, paddingEnd, paddingBottom)
+                setPaddingRelative(ViewHelper.getDp(context, TEN_DP), paddingTop, paddingEnd, paddingBottom)
             }
         }
     }
 
     private fun getAttributes(context: Context, attrs: AttributeSet) {
-        var styledAttrs: TypedArray? = null
-        try {
-            styledAttrs = context.obtainStyledAttributes(attrs, R.styleable.ExpandableHintText)
+        val styledAttrs = context.obtainStyledAttributes(attrs, R.styleable.ExpandableHintText)
 
-            animationDurationMs = styledAttrs.getInteger(R.styleable.ExpandableHintText_animationDurationMs, 400)
-            textColor = styledAttrs.getColor(R.styleable.ExpandableHintText_android_textColor, Int.MIN_VALUE)
-            floatingLabelColor = styledAttrs.getColor(R.styleable.ExpandableHintText_floatingLabelColor, Color.BLACK)
-            imageDrawableId = styledAttrs.getResourceId(R.styleable.ExpandableHintText_image, -1)
-            imageColour = styledAttrs.getColor(R.styleable.ExpandableHintText_imageColor, Color.GRAY)
-            cardCollapsedHeight = styledAttrs.getDimensionPixelOffset(
-                R.styleable.ExpandableHintText_cardCollapsedHeight,
-                context.resources.getDimensionPixelOffset(R.dimen.cardHeight_initial)
-            )
-            readOnly = styledAttrs.getBoolean(R.styleable.ExpandableHintText_readOnly, false)
-            hintText = styledAttrs.getString(R.styleable.ExpandableHintText_android_hint) ?: ""
-            textBoxColor = styledAttrs.getColor(R.styleable.ExpandableHintText_textBoxColor, Color.WHITE)
-            text = styledAttrs.getString(R.styleable.ExpandableHintText_android_text)
-            inputType = styledAttrs.getInt(R.styleable.ExpandableHintText_android_inputType, Int.MIN_VALUE)
-            maxLines = styledAttrs.getInt(R.styleable.ExpandableHintText_android_maxLines, -1)
-            textSize = styledAttrs.getFloat(R.styleable.ExpandableHintText_android_textSize, 16f)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        } finally {
-            styledAttrs?.recycle()
-        }
-
+        animationDurationMs = styledAttrs.getInteger(R.styleable.ExpandableHintText_animationDurationMs, DEFAULT_ANIMATION_MS)
+        textColor = styledAttrs.getColor(R.styleable.ExpandableHintText_android_textColor, Int.MIN_VALUE)
+        floatingLabelColor = styledAttrs.getColor(R.styleable.ExpandableHintText_floatingLabelColor, Color.BLACK)
+        imageDrawableId = styledAttrs.getResourceId(R.styleable.ExpandableHintText_image, -1)
+        imageColour = styledAttrs.getColor(R.styleable.ExpandableHintText_imageColor, Color.GRAY)
+        cardCollapsedHeight = styledAttrs.getDimensionPixelOffset(
+            R.styleable.ExpandableHintText_cardCollapsedHeight,
+            context.resources.getDimensionPixelOffset(R.dimen.cardHeight_initial)
+        )
+        readOnly = styledAttrs.getBoolean(R.styleable.ExpandableHintText_readOnly, false)
+        hintText = styledAttrs.getString(R.styleable.ExpandableHintText_android_hint) ?: ""
+        textBoxColor = styledAttrs.getColor(R.styleable.ExpandableHintText_textBoxColor, Color.WHITE)
+        text = styledAttrs.getString(R.styleable.ExpandableHintText_android_text)
+        inputType = styledAttrs.getInt(R.styleable.ExpandableHintText_android_inputType, Int.MIN_VALUE)
+        maxLines = styledAttrs.getInt(R.styleable.ExpandableHintText_android_maxLines, -1)
+        textSize = styledAttrs.getFloat(R.styleable.ExpandableHintText_android_textSize, DEFAULT_TEXT_SIZE)
+        styledAttrs.recycle()
     }
 
     override fun setOnClickListener(l: View.OnClickListener?) {
@@ -413,7 +448,7 @@ class ExpandableHintText : FrameLayout {
         label.post {
             label.pivotX = 0f
             label.pivotY = 0f
-            labelTranslationY = (label.layoutParams as FrameLayout.LayoutParams).topMargin
+            labelTranslationY = (label.layoutParams as? FrameLayout.LayoutParams)?.topMargin ?: 0
             labelTranslationX = label.paddingStart
             setCursorColor(textColor)
             label.bringToFront()
@@ -479,6 +514,5 @@ class ExpandableHintText : FrameLayout {
             field.set(editor, drawables)
         } catch (ignored: Exception) {
         }
-
     }
 }

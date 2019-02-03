@@ -9,7 +9,11 @@ buildscript {
 
     dependencies {
         classpath "com.github.ben-manes:gradle-versions-plugin:0.20.0"
+        classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:0.9.17"
     }
+}
+plugins {
+    id("io.gitlab.arturbosch.detekt").version("1.0.0-RC12")
 }
 
 apply plugin: 'com.android.library'
@@ -19,6 +23,13 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'org.jetbrains.kotlin.android.extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: "com.github.ben-manes.versions"
+apply plugin: "io.gitlab.arturbosch.detekt"
+apply plugin: 'org.jetbrains.dokka-android'
+
+dokka {
+    outputFormat = 'html'
+    outputDirectory = "$buildDir/javadoc"
+}
 
 android {
     buildToolsVersion "28.0.3"
@@ -47,6 +58,9 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    detekt "io.gitlab.arturbosch.detekt:detekt-cli:1.0.0-RC12"
+    detektPlugins "io.gitlab.arturbosch.detekt:detekt-formatting:1.0.0-RC12"
 
     implementation 'androidx.appcompat:appcompat:1.0.2'
 
