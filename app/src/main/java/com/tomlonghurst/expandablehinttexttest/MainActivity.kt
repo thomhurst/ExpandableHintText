@@ -3,6 +3,7 @@ package com.tomlonghurst.expandablehinttexttest
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 
+@Suppress("UndocumentedPublicClass")
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
