@@ -3,7 +3,7 @@ A Customisable Pretty EditText Layout for Android
 
 [![](https://jitpack.io/v/thomhurst/ExpandableHintText.svg)](https://jitpack.io/#thomhurst/ExpandableHintText)
 
-### Install
+## Install
 
 Add Jitpack to your repositories in your `build.gradle` file
 
@@ -66,8 +66,6 @@ implementation 'com.github.thomhurst:ExpandableHintText:{version}'
                 app:image="@drawable/ic_baseline_sentiment_very_satisfied_24px"
         />
 ```
-
-
 
 If you enjoy, please buy me a coffee :)
 
