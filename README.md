@@ -2,6 +2,7 @@
 A Customisable Pretty EditText Layout for Android
 
 [![](https://jitpack.io/v/thomhurst/ExpandableHintText.svg)](https://jitpack.io/#thomhurst/ExpandableHintText)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e6f3c4e528114f678c3feb970b140cbc)](https://www.codacy.com/app/thomhurst/ExpandableHintText?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=thomhurst/ExpandableHintText&amp;utm_campaign=Badge_Grade)
 
 ## Install
 
