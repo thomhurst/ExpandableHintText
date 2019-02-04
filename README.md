@@ -3,6 +3,8 @@ A Customisable Pretty EditText Layout for Android
 
 [![](https://jitpack.io/v/thomhurst/ExpandableHintText.svg)](https://jitpack.io/#thomhurst/ExpandableHintText)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/e6f3c4e528114f678c3feb970b140cbc)](https://www.codacy.com/app/thomhurst/ExpandableHintText?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=thomhurst/ExpandableHintText&amp;utm_campaign=Badge_Grade)
+[![Android Arsenal]( https://img.shields.io/badge/Android%20Arsenal-Expandable%20Hint%20Texts-green.svg?style=flat )]( https://android-arsenal.com/details/1/7499 )
+[![Android Weekly](https://img.shields.io/badge/Android%20Weekly-347-blue.svg)](http://androidweekly.net/issues/issue-347)
 
 ## Install
 
