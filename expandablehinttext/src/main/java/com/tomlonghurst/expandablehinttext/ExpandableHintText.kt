@@ -23,7 +23,13 @@ import androidx.core.view.ViewCompat
 import com.tomlonghurst.expandablehinttext.extensions.beGone
 import com.tomlonghurst.expandablehinttext.extensions.beVisible
 import com.tomlonghurst.expandablehinttext.extensions.onGlobalLayout
+import com.tomlonghurst.expandablehinttext.extensions.remove
 import kotlinx.android.synthetic.main.eht_layout.view.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
 
 /**
  * A view used for user input
@@ -246,23 +252,27 @@ class ExpandableHintText : FrameLayout {
         get() = !isEnabled
 
     constructor(context: Context) : super(context) {
-        init()
+        init(context, null)
     }
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
-        init()
-        getAttributes(context, attrs)
+        init(context, attrs)
     }
 
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
-        init()
-        getAttributes(context, attrs)
+        init(context, attrs)
     }
 
-    private fun init() {
+    private fun init(context: Context, attrs: AttributeSet?) {
         inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
         View.inflate(context, R.layout.eht_layout, this)
         addEditText()
+        attrs?.let {
+            getAttributes(context, it)
+            val progressDrawable = load_animation.progressDrawable.mutate()
+            progressDrawable.setColorFilter(textBoxColor, android.graphics.PorterDuff.Mode.SRC_IN)
+            load_animation.progressDrawable = progressDrawable
+        }
     }
 
     private fun toggle() {
@@ -463,6 +473,20 @@ class ExpandableHintText : FrameLayout {
 
             if (editText.text.toString().isNotBlank()) {
                 expand()
+            }
+
+            this.onGlobalLayout {
+                post {
+                    editText.onGlobalLayout {
+                        editText.post {
+                            GlobalScope.launch(Dispatchers.Main) {
+                                delay(500)
+                                load_animation.remove()
+                                expandable_edit_text_frame.beVisible()
+                            }
+                        }
+                    }
+                }
             }
         }
     }
