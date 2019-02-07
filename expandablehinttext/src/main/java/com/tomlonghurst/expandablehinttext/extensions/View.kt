@@ -1,6 +1,7 @@
 package com.tomlonghurst.expandablehinttext.extensions
 
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -37,6 +38,18 @@ internal fun View.onGlobalLayout(callback: () -> Unit) {
             callback()
         }
     })
+}
+
+internal fun View.postOnMainThread(action: () -> Unit) {
+    GlobalScope.launch(Dispatchers.Main) {
+        action.invoke()
+    }
+}
+
+internal fun View.remove() {
+    GlobalScope.launch(Dispatchers.Main) {
+        (parent as ViewGroup).removeView(this@remove)
+    }
 }
 
 internal fun View.isVisible() = visibility == View.VISIBLE

@@ -11,6 +11,7 @@ import android.text.TextWatcher
 import android.util.AttributeSet
 import android.util.Property
 import android.view.View
+import android.view.animation.AnimationUtils
 import android.view.animation.DecelerateInterpolator
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
@@ -20,10 +21,12 @@ import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
-import com.tomlonghurst.expandablehinttext.extensions.beGone
-import com.tomlonghurst.expandablehinttext.extensions.beVisible
-import com.tomlonghurst.expandablehinttext.extensions.onGlobalLayout
+import com.tomlonghurst.expandablehinttext.extensions.*
 import kotlinx.android.synthetic.main.eht_layout.view.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+
 
 /**
  * A view used for user input
@@ -40,7 +43,7 @@ class ExpandableHintText : FrameLayout {
      */
     fun useEditText(action: (editText: EditText) -> Unit) {
         editText.onGlobalLayout {
-            editText.post {
+            editText.postOnMainThread {
                 action.invoke(editText)
             }
         }
@@ -52,8 +55,8 @@ class ExpandableHintText : FrameLayout {
     var hintText: String? = ""
         set(value) {
             field = value
-            label.post {
-                editText.post {
+            label.postOnMainThread {
+                editText.postOnMainThread {
                     label.text = hintText ?: ""
                     editText.hint = ""
                 }
@@ -84,8 +87,8 @@ class ExpandableHintText : FrameLayout {
         set(value) {
             field = value
 
-            label.post {
-                editText.post {
+            label.postOnMainThread {
+                editText.postOnMainThread {
                     if (textColor != Int.MIN_VALUE) {
                         label.setTextColor(adjustAlpha(textColor, DEFAULT_HINT_OPACITY))
                         editText.setTextColor(textColor)
@@ -107,8 +110,8 @@ class ExpandableHintText : FrameLayout {
         set(value) {
             field = value
 
-            label.post {
-                editText.post {
+            label.postOnMainThread {
+                editText.postOnMainThread {
                     editText.textSize = textSize
                     label.textSize = textSize
                 }
@@ -124,7 +127,7 @@ class ExpandableHintText : FrameLayout {
         set(value) {
             field = value
 
-            image.post {
+            image.postOnMainThread {
                 if (imageDrawableId != -1) {
                     image.apply {
                         setImageDrawable(ContextCompat.getDrawable(context, imageDrawableId))
@@ -133,7 +136,7 @@ class ExpandableHintText : FrameLayout {
                     }
 
                     label.apply {
-                        post {
+                        postOnMainThread {
                             setPaddingRelative(
                                 paddingStart + labelPadding,
                                 paddingTop,
@@ -158,7 +161,7 @@ class ExpandableHintText : FrameLayout {
     var imageColour = Color.BLACK
         set(value) {
             field = value
-            image.post {
+            image.postOnMainThread {
                 image.setColorFilter(imageColour)
             }
         }
@@ -179,7 +182,7 @@ class ExpandableHintText : FrameLayout {
         set(value) {
             field = value
 
-            card.post {
+            card.postOnMainThread {
                 card.background.setColorFilter(textBoxColor, PorterDuff.Mode.SRC_IN)
             }
         }
@@ -192,7 +195,7 @@ class ExpandableHintText : FrameLayout {
         set(value) {
             field = value
 
-            editText.post {
+            editText.postOnMainThread {
                 editText.setText(text)
                 invalidate()
             }
@@ -207,7 +210,7 @@ class ExpandableHintText : FrameLayout {
             field = value
 
             if (inputType != Int.MIN_VALUE) {
-                editText.post {
+                editText.postOnMainThread {
                     editText.inputType = inputType
                 }
             }
@@ -222,7 +225,7 @@ class ExpandableHintText : FrameLayout {
             field = value
 
             if (maxLines != -1) {
-                editText.post {
+                editText.postOnMainThread {
                     editText.maxLines = maxLines
                 }
             }
@@ -246,23 +249,29 @@ class ExpandableHintText : FrameLayout {
         get() = !isEnabled
 
     constructor(context: Context) : super(context) {
-        init()
+        init(context, null)
     }
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
-        init()
-        getAttributes(context, attrs)
+        init(context, attrs)
     }
 
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
-        init()
-        getAttributes(context, attrs)
+        init(context, attrs)
     }
 
-    private fun init() {
+    private fun init(context: Context, attrs: AttributeSet?) {
         inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
         View.inflate(context, R.layout.eht_layout, this)
         addEditText()
+        attrs?.let {
+            getAttributes(context, it)
+            GlobalScope.launch(Dispatchers.Main) {
+                val drawable = load_animation.indeterminateDrawable.mutate()
+                drawable.setColorFilter(textBoxColor, android.graphics.PorterDuff.Mode.SRC_IN)
+                load_animation.indeterminateDrawable = drawable
+            }
+        }
     }
 
     private fun toggle() {
@@ -281,14 +290,14 @@ class ExpandableHintText : FrameLayout {
             if (editText.text.toString().isBlank()) {
 
                 editText.apply {
-                    post {
+                    postOnMainThread {
                         ViewCompat.animate(this)
                             .alpha(0f).duration = animationDurationMs.toLong()
                     }
                 }
 
                 label.apply {
-                    post {
+                    postOnMainThread {
                         ViewCompat.animate(this)
                             .scaleX(1f)
                             .scaleY(1f)
@@ -343,7 +352,7 @@ class ExpandableHintText : FrameLayout {
     private fun expand() {
         if (!isExpanded) {
 
-            editText.post {
+            editText.postOnMainThread {
                 ViewCompat.animate(editText)
                     .alpha(1f).duration = animationDurationMs.toLong()
             }
@@ -351,7 +360,7 @@ class ExpandableHintText : FrameLayout {
             val miniatureScale = 0.7f
 
             label.apply {
-                post {
+                postOnMainThread {
                     ViewCompat.animate(this)
                         .scaleX(miniatureScale)
                         .scaleY(miniatureScale)
@@ -369,7 +378,7 @@ class ExpandableHintText : FrameLayout {
 
     private fun editEditText() {
         if (isEnabled && isExpanded) {
-            editText.post {
+            editText.postOnMainThread {
                 editText.requestFocus()
                 inputMethodManager?.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT)
             }
@@ -406,7 +415,7 @@ class ExpandableHintText : FrameLayout {
                 }
             })
 
-            post {
+            postOnMainThread {
                 setPaddingRelative(ViewHelper.getDp(context, TEN_DP), paddingTop, paddingEnd, paddingBottom)
             }
         }
@@ -442,11 +451,11 @@ class ExpandableHintText : FrameLayout {
     override fun onFinishInflate() {
         super.onFinishInflate()
 
-        card.post {
+        card.postOnMainThread {
             card.addView(editText)
         }
 
-        label.post {
+        label.postOnMainThread {
             label.pivotX = 0f
             label.pivotY = 0f
             labelTranslationY = (label.layoutParams as? FrameLayout.LayoutParams)?.topMargin ?: 0
@@ -455,7 +464,7 @@ class ExpandableHintText : FrameLayout {
             label.bringToFront()
         }
 
-        editText.post {
+        editText.postOnMainThread {
             editText.setBackgroundColor(Color.TRANSPARENT)
             editText.alpha = 0f
             editText.clearFocus()
@@ -464,7 +473,30 @@ class ExpandableHintText : FrameLayout {
             if (editText.text.toString().isNotBlank()) {
                 expand()
             }
+
+            this.onGlobalLayout {
+                postOnMainThread {
+                    editText.onGlobalLayout {
+                        editText.postOnMainThread {
+                            GlobalScope.launch(Dispatchers.Main) {
+                                load_animation.remove()
+                                expandable_edit_text_frame.beVisible()
+
+                                zoomIn()
+                            }
+                        }
+                    }
+                }
+            }
         }
+    }
+
+    private fun zoomIn() {
+        val zoomInAnimation = AnimationUtils.loadAnimation(
+            context,
+            R.anim.zoom_in
+        )
+        expandable_edit_text_frame.startAnimation(zoomInAnimation)
     }
 
     override fun setEnabled(enabled: Boolean) {
