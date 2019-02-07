@@ -269,9 +269,9 @@ class ExpandableHintText : FrameLayout {
         addEditText()
         attrs?.let {
             getAttributes(context, it)
-            val progressDrawable = load_animation.progressDrawable.mutate()
-            progressDrawable.setColorFilter(textBoxColor, android.graphics.PorterDuff.Mode.SRC_IN)
-            load_animation.progressDrawable = progressDrawable
+            val drawable = load_animation.indeterminateDrawable.mutate()
+            drawable.setColorFilter(textBoxColor, android.graphics.PorterDuff.Mode.SRC_IN)
+            load_animation.indeterminateDrawable = drawable
         }
     }
 
