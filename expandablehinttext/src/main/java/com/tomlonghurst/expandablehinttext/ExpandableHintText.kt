@@ -11,6 +11,7 @@ import android.text.TextWatcher
 import android.util.AttributeSet
 import android.util.Property
 import android.view.View
+import android.view.animation.AnimationUtils
 import android.view.animation.DecelerateInterpolator
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
@@ -24,7 +25,6 @@ import com.tomlonghurst.expandablehinttext.extensions.*
 import kotlinx.android.synthetic.main.eht_layout.view.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -478,18 +478,25 @@ class ExpandableHintText : FrameLayout {
                 postOnMainThread {
                     editText.onGlobalLayout {
                         editText.postOnMainThread {
-                            GlobalScope.launch(Dispatchers.Default) {
-                                delay(500)
-                                launch(Dispatchers.Main) {
-                                    load_animation.remove()
-                                    expandable_edit_text_frame.beVisible()
-                                }
+                            GlobalScope.launch(Dispatchers.Main) {
+                                load_animation.remove()
+                                expandable_edit_text_frame.beVisible()
+
+                                zoomIn()
                             }
                         }
                     }
                 }
             }
         }
+    }
+
+    private fun zoomIn() {
+        val zoomInAnimation = AnimationUtils.loadAnimation(
+            context,
+            R.anim.zoom_in
+        )
+        expandable_edit_text_frame.startAnimation(zoomInAnimation)
     }
 
     override fun setEnabled(enabled: Boolean) {
