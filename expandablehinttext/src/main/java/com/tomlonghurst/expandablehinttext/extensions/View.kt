@@ -40,7 +40,17 @@ internal fun View.onGlobalLayout(callback: () -> Unit) {
     })
 }
 
-internal fun View.remove() = (parent as ViewGroup).removeView(this)
+internal fun View.postOnMainThread(action: () -> Unit) {
+    GlobalScope.launch(Dispatchers.Main) {
+        action.invoke()
+    }
+}
+
+internal fun View.remove() {
+    GlobalScope.launch(Dispatchers.Main) {
+        (parent as ViewGroup).removeView(this@remove)
+    }
+}
 
 internal fun View.isVisible() = visibility == View.VISIBLE
 
