@@ -191,7 +191,7 @@ class ExpandableHintText : FrameLayout {
      * Set or Get the text of the input field
      * @sample ExpandableHintText.text = "Blah"
      */
-    var text: String
+    var text: String?
         set(value) {
             editText.postOnMainThread {
                 editText.setText(value)
