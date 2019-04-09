@@ -21,7 +21,10 @@ import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
-import com.tomlonghurst.expandablehinttext.extensions.*
+import com.tomlonghurst.expandablehinttext.extensions.beGone
+import com.tomlonghurst.expandablehinttext.extensions.beVisible
+import com.tomlonghurst.expandablehinttext.extensions.postOnMainThread
+import com.tomlonghurst.expandablehinttext.extensions.remove
 import kotlinx.android.synthetic.main.eht_layout.view.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -42,10 +45,8 @@ class ExpandableHintText : FrameLayout {
      * @sample ExpandableHintText.useEditText { editText -> editText.height = 500 }
      */
     fun useEditText(action: (editText: EditText) -> Unit) {
-        editText.onGlobalLayout {
-            editText.postOnMainThread {
-                action.invoke(editText)
-            }
+        editText.postOnMainThread {
+            action.invoke(editText)
         }
     }
 
@@ -473,18 +474,12 @@ class ExpandableHintText : FrameLayout {
                 expand()
             }
 
-            this.onGlobalLayout {
-                postOnMainThread {
-                    editText.onGlobalLayout {
-                        editText.postOnMainThread {
-                            GlobalScope.launch(Dispatchers.Main) {
-                                load_animation.remove()
-                                expandable_edit_text_frame.beVisible()
+            postOnMainThread {
+                GlobalScope.launch(Dispatchers.Main) {
+                    load_animation.remove()
+                    expandable_edit_text_frame.beVisible()
 
-                                zoomIn()
-                            }
-                        }
-                    }
+                    zoomIn()
                 }
             }
         }

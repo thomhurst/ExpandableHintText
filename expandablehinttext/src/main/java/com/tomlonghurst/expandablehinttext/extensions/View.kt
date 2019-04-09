@@ -35,14 +35,16 @@ internal fun View.onGlobalLayout(callback: () -> Unit) {
     viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
         override fun onGlobalLayout() {
             viewTreeObserver.removeOnGlobalLayoutListener(this)
-            callback()
+            callback.invoke()
         }
     })
 }
 
 internal fun View.postOnMainThread(action: () -> Unit) {
     GlobalScope.launch(Dispatchers.Main) {
-        action.invoke()
+        post {
+            action.invoke()
+        }
     }
 }
 
