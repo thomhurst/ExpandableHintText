@@ -8,7 +8,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.github.ben-manes:gradle-versions-plugin:0.20.0"
+        classpath "com.github.ben-manes:gradle-versions-plugin:0.24.0"
         classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:0.9.17"
     }
 }
@@ -32,16 +32,14 @@ dokka {
 }
 
 android {
-    buildToolsVersion "28.0.3"
-
-    compileSdkVersion 28
+    compileSdkVersion 29
 
 
     defaultConfig {
         minSdkVersion 17
-        targetSdkVersion 28
-        versionCode 2
-        versionName "1.02"
+        targetSdkVersion 29
+        versionCode 3
+        versionName "1.03"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -59,18 +57,18 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    detekt "io.gitlab.arturbosch.detekt:detekt-cli:1.0.0-RC12"
-    detektPlugins "io.gitlab.arturbosch.detekt:detekt-formatting:1.0.0-RC12"
+    detekt "io.gitlab.arturbosch.detekt:detekt-cli:1.0.1"
+    detektPlugins "io.gitlab.arturbosch.detekt:detekt-formatting:1.0.1"
 
     implementation 'androidx.appcompat:appcompat:1.0.2'
 
-    implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: '1.1.1'
-    implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-android', version: '1.1.1'
+    implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: '1.3.0'
+    implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-android', version: '1.3.0'
 
 
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 repositories {

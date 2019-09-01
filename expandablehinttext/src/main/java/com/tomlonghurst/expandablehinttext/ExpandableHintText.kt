@@ -268,7 +268,7 @@ class ExpandableHintText : FrameLayout {
             getAttributes(context, it)
             GlobalScope.launch(Dispatchers.Main) {
                 val drawable = load_animation.indeterminateDrawable.mutate()
-                drawable.setColorFilter(textBoxColor, android.graphics.PorterDuff.Mode.SRC_IN)
+                drawable.setColorFilter(textBoxColor, PorterDuff.Mode.SRC_IN)
                 load_animation.indeterminateDrawable = drawable
             }
         }
@@ -443,7 +443,7 @@ class ExpandableHintText : FrameLayout {
         styledAttrs.recycle()
     }
 
-    override fun setOnClickListener(l: View.OnClickListener?) {
+    override fun setOnClickListener(l: OnClickListener?) {
         super.setOnClickListener(l)
         card.setOnClickListener(l)
     }
@@ -458,7 +458,7 @@ class ExpandableHintText : FrameLayout {
         label.postOnMainThread {
             label.pivotX = 0f
             label.pivotY = 0f
-            labelTranslationY = (label.layoutParams as? FrameLayout.LayoutParams)?.topMargin ?: 0
+            labelTranslationY = (label.layoutParams as? LayoutParams)?.topMargin ?: 0
             labelTranslationX = label.paddingStart
             setCursorColor(textColor)
             label.bringToFront()
@@ -474,12 +474,17 @@ class ExpandableHintText : FrameLayout {
                 expand()
             }
 
-            postOnMainThread {
-                GlobalScope.launch(Dispatchers.Main) {
-                    load_animation.remove()
-                    expandable_edit_text_frame.beVisible()
+            card.postOnMainThread {
+                label.postOnMainThread {
+                    postOnMainThread {
+                        expandable_edit_text_frame.invalidate()
 
-                    zoomIn()
+                        load_animation.remove()
+
+                        expandable_edit_text_frame.beVisible()
+
+                        zoomIn()
+                    }
                 }
             }
         }
