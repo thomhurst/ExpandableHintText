@@ -196,6 +196,9 @@ class ExpandableHintText : FrameLayout {
         set(value) {
             editText.postOnMainThread {
                 editText.setText(value)
+                if(editText.isSelected && editText.text.isNotEmpty()) {
+                    editText.setSelection(editText.text.length - 1)
+                }
                 invalidate()
             }
         }
