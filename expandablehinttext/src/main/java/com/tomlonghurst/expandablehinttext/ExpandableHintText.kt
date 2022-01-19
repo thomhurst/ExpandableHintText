@@ -3,6 +3,7 @@ package com.tomlonghurst.expandablehinttext
 import android.animation.Animator
 import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.PorterDuff
@@ -10,6 +11,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
 import android.util.Property
+import android.view.LayoutInflater
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.view.animation.DecelerateInterpolator
@@ -21,11 +23,11 @@ import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
+import com.tomlonghurst.expandablehinttext.databinding.EhtLayoutBinding
 import com.tomlonghurst.expandablehinttext.extensions.beGone
 import com.tomlonghurst.expandablehinttext.extensions.beVisible
 import com.tomlonghurst.expandablehinttext.extensions.postOnMainThread
 import com.tomlonghurst.expandablehinttext.extensions.remove
-import kotlinx.android.synthetic.main.eht_layout.view.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -34,9 +36,9 @@ import kotlinx.coroutines.launch
 /**
  * A view used for user input
  */
-@Suppress("LargeClass", "TooManyFunctions")
 class ExpandableHintText : FrameLayout {
 
+    private lateinit var viewBinding: EhtLayoutBinding
     private var inputMethodManager: InputMethodManager? = null
     private lateinit var editText: ExpandableEditText
 
@@ -56,9 +58,9 @@ class ExpandableHintText : FrameLayout {
     var hintText: String? = ""
         set(value) {
             field = value
-            label.postOnMainThread {
+            viewBinding.label.postOnMainThread {
                 editText.postOnMainThread {
-                    label.text = hintText ?: ""
+                    viewBinding.label.text = hintText ?: ""
                     editText.hint = ""
                 }
             }
@@ -88,13 +90,13 @@ class ExpandableHintText : FrameLayout {
         set(value) {
             field = value
 
-            label.postOnMainThread {
+            viewBinding.label.postOnMainThread {
                 editText.postOnMainThread {
                     if (textColor != Int.MIN_VALUE) {
-                        label.setTextColor(adjustAlpha(textColor, DEFAULT_HINT_OPACITY))
+                        viewBinding.label.setTextColor(adjustAlpha(textColor, DEFAULT_HINT_OPACITY))
                         editText.setTextColor(textColor)
                     } else {
-                        label.currentTextColor.let { currentTextColor ->
+                        viewBinding.label.currentTextColor.let { currentTextColor ->
                             this.textColor = currentTextColor
                             editText.setTextColor(currentTextColor)
                         }
@@ -111,10 +113,10 @@ class ExpandableHintText : FrameLayout {
         set(value) {
             field = value
 
-            label.postOnMainThread {
+            viewBinding.label.postOnMainThread {
                 editText.postOnMainThread {
                     editText.textSize = textSize
-                    label.textSize = textSize
+                    viewBinding.label.textSize = textSize
                 }
             }
         }
@@ -128,15 +130,15 @@ class ExpandableHintText : FrameLayout {
         set(value) {
             field = value
 
-            image.postOnMainThread {
+            viewBinding.image.postOnMainThread {
                 if (imageDrawableId != -1) {
-                    image.apply {
+                    viewBinding.image.apply {
                         setImageDrawable(ContextCompat.getDrawable(context, imageDrawableId))
                         setColorFilter(imageColour)
-                        image.beVisible()
+                        viewBinding.image.beVisible()
                     }
 
-                    label.apply {
+                    viewBinding.label.apply {
                         postOnMainThread {
                             setPaddingRelative(
                                 paddingStart + labelPadding,
@@ -147,7 +149,7 @@ class ExpandableHintText : FrameLayout {
                         }
                     }
                 } else {
-                    image.beGone()
+                    viewBinding.image.beGone()
                 }
             }
         }
@@ -162,8 +164,8 @@ class ExpandableHintText : FrameLayout {
     var imageColour = Color.BLACK
         set(value) {
             field = value
-            image.postOnMainThread {
-                image.setColorFilter(imageColour)
+            viewBinding.image.postOnMainThread {
+                viewBinding.image.setColorFilter(imageColour)
             }
         }
 
@@ -183,8 +185,8 @@ class ExpandableHintText : FrameLayout {
         set(value) {
             field = value
 
-            card.postOnMainThread {
-                card.background.setColorFilter(textBoxColor, PorterDuff.Mode.SRC_IN)
+            viewBinding.card.postOnMainThread {
+                viewBinding.card.background.setColorFilter(textBoxColor, PorterDuff.Mode.SRC_IN)
             }
         }
 
@@ -196,8 +198,8 @@ class ExpandableHintText : FrameLayout {
         set(value) {
             editText.postOnMainThread {
                 editText.setText(value)
-                if(editText.isSelected && editText.text.isNotEmpty()) {
-                    editText.setSelection(editText.text.length - 1)
+                if(editText.isSelected && editText.text?.isNotEmpty() == true) {
+                    editText.setSelection(editText.text!!.length - 1)
                 }
                 invalidate()
             }
@@ -263,16 +265,19 @@ class ExpandableHintText : FrameLayout {
         init(context, attrs)
     }
 
+
+
     private fun init(context: Context, attrs: AttributeSet?) {
         inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
         View.inflate(context, R.layout.eht_layout, this)
+        viewBinding = EhtLayoutBinding.inflate(LayoutInflater.from(context), this, true)
         addEditText()
         attrs?.let {
             getAttributes(context, it)
             GlobalScope.launch(Dispatchers.Main) {
-                val drawable = load_animation.indeterminateDrawable.mutate()
+                val drawable = viewBinding.loadAnimation.indeterminateDrawable.mutate()
                 drawable.setColorFilter(textBoxColor, PorterDuff.Mode.SRC_IN)
-                load_animation.indeterminateDrawable = drawable
+                viewBinding.loadAnimation.indeterminateDrawable = drawable
             }
         }
     }
@@ -299,7 +304,7 @@ class ExpandableHintText : FrameLayout {
                     }
                 }
 
-                label.apply {
+                viewBinding.label.apply {
                     postOnMainThread {
                         ViewCompat.animate(this)
                             .scaleX(1f)
@@ -362,7 +367,7 @@ class ExpandableHintText : FrameLayout {
 
             val miniatureScale = 0.7f
 
-            label.apply {
+            viewBinding.label.apply {
                 postOnMainThread {
                     ViewCompat.animate(this)
                         .scaleX(miniatureScale)
@@ -392,7 +397,7 @@ class ExpandableHintText : FrameLayout {
         editText = ExpandableEditText(context).apply {
             setOnBackPressListener(Runnable {
                 editText.clearFocus()
-                card?.clearFocus()
+                viewBinding.card?.clearFocus()
             })
 
             setOnFocusChangeListener { _, hasFocus ->
@@ -448,23 +453,23 @@ class ExpandableHintText : FrameLayout {
 
     override fun setOnClickListener(l: OnClickListener?) {
         super.setOnClickListener(l)
-        card.setOnClickListener(l)
+        viewBinding.card.setOnClickListener(l)
     }
 
     override fun onFinishInflate() {
         super.onFinishInflate()
 
-        card.postOnMainThread {
-            card.addView(editText)
+        viewBinding.card.postOnMainThread {
+            viewBinding.card.addView(editText)
         }
 
-        label.postOnMainThread {
-            label.pivotX = 0f
-            label.pivotY = 0f
-            labelTranslationY = (label.layoutParams as? LayoutParams)?.topMargin ?: 0
-            labelTranslationX = label.paddingStart
+        viewBinding.label.postOnMainThread {
+            viewBinding.label.pivotX = 0f
+            viewBinding.label.pivotY = 0f
+            labelTranslationY = (viewBinding.label.layoutParams as? LayoutParams)?.topMargin ?: 0
+            labelTranslationX = viewBinding.label.paddingStart
             setCursorColor(textColor)
-            label.bringToFront()
+            viewBinding.label.bringToFront()
         }
 
         editText.postOnMainThread {
@@ -477,14 +482,14 @@ class ExpandableHintText : FrameLayout {
                 expand()
             }
 
-            card.postOnMainThread {
-                label.postOnMainThread {
+            viewBinding.card.postOnMainThread {
+                viewBinding.label.postOnMainThread {
                     postOnMainThread {
-                        expandable_edit_text_frame.invalidate()
+                        viewBinding.expandableEditTextFrame.invalidate()
 
-                        load_animation.remove()
+                        viewBinding.loadAnimation.remove()
 
-                        expandable_edit_text_frame.beVisible()
+                        viewBinding.expandableEditTextFrame.beVisible()
 
                         zoomIn()
                     }
@@ -498,7 +503,7 @@ class ExpandableHintText : FrameLayout {
             context,
             R.anim.zoom_in
         )
-        expandable_edit_text_frame.startAnimation(zoomInAnimation)
+        viewBinding.expandableEditTextFrame.startAnimation(zoomInAnimation)
     }
 
     override fun setEnabled(enabled: Boolean) {
@@ -526,6 +531,7 @@ class ExpandableHintText : FrameLayout {
         return Color.argb(alpha, red, green, blue)
     }
 
+    @SuppressLint("SoonBlockedPrivateApi")
     private fun setCursorColor(@ColorInt color: Int) {
         try {
             // Get the cursor resource id

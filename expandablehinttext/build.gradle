@@ -20,6 +20,9 @@ apply plugin: "com.github.ben-manes.versions"
 android {
     compileSdkVersion 32
 
+    buildFeatures {
+        viewBinding true
+    }
 
     defaultConfig {
         minSdkVersion 17
@@ -28,7 +31,6 @@ android {
         versionName "1.05"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
     }
 
     buildTypes {
@@ -37,7 +39,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
 }
 
 dependencies {
