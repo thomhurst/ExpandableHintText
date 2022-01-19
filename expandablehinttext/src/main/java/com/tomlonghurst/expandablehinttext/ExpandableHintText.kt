@@ -7,6 +7,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
@@ -24,13 +25,7 @@ import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import com.tomlonghurst.expandablehinttext.databinding.EhtLayoutBinding
-import com.tomlonghurst.expandablehinttext.extensions.beGone
-import com.tomlonghurst.expandablehinttext.extensions.beVisible
 import com.tomlonghurst.expandablehinttext.extensions.postOnMainThread
-import com.tomlonghurst.expandablehinttext.extensions.remove
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 
 /**
@@ -97,7 +92,7 @@ class ExpandableHintText : FrameLayout {
                         editText.setTextColor(textColor)
                     } else {
                         viewBinding.label.currentTextColor.let { currentTextColor ->
-                            this.textColor = currentTextColor
+                            this@ExpandableHintText.textColor = currentTextColor
                             editText.setTextColor(currentTextColor)
                         }
                     }
@@ -135,7 +130,9 @@ class ExpandableHintText : FrameLayout {
                     viewBinding.image.apply {
                         setImageDrawable(ContextCompat.getDrawable(context, imageDrawableId))
                         setColorFilter(imageColour)
-                        viewBinding.image.beVisible()
+                        viewBinding.image.postOnMainThread {
+                            viewBinding.image.beVisible()
+                        }
                     }
 
                     viewBinding.label.apply {
@@ -186,7 +183,7 @@ class ExpandableHintText : FrameLayout {
             field = value
 
             viewBinding.card.postOnMainThread {
-                viewBinding.card.background.setColorFilter(textBoxColor, PorterDuff.Mode.SRC_IN)
+                viewBinding.card.background.colorFilter = PorterDuffColorFilter(textBoxColor, PorterDuff.Mode.SRC_IN)
             }
         }
 
@@ -266,19 +263,16 @@ class ExpandableHintText : FrameLayout {
     }
 
 
-
     private fun init(context: Context, attrs: AttributeSet?) {
         inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
         View.inflate(context, R.layout.eht_layout, this)
         viewBinding = EhtLayoutBinding.inflate(LayoutInflater.from(context), this, true)
         addEditText()
         attrs?.let {
-            getAttributes(context, it)
-            GlobalScope.launch(Dispatchers.Main) {
-                val drawable = viewBinding.loadAnimation.indeterminateDrawable.mutate()
-                drawable.setColorFilter(textBoxColor, PorterDuff.Mode.SRC_IN)
-                viewBinding.loadAnimation.indeterminateDrawable = drawable
-            }
+            setAttributes(context, it)
+            val drawable = viewBinding.loadAnimation.indeterminateDrawable.mutate()
+            drawable.colorFilter = PorterDuffColorFilter(textBoxColor, PorterDuff.Mode.SRC_IN)
+            viewBinding.loadAnimation.indeterminateDrawable = drawable
         }
     }
 
@@ -299,20 +293,20 @@ class ExpandableHintText : FrameLayout {
 
                 editText.apply {
                     postOnMainThread {
-                        ViewCompat.animate(this)
+                        ViewCompat.animate(this@apply)
                             .alpha(0f).duration = animationDurationMs.toLong()
                     }
                 }
 
                 viewBinding.label.apply {
                     postOnMainThread {
-                        ViewCompat.animate(this)
+                        ViewCompat.animate(this@apply)
                             .scaleX(1f)
                             .scaleY(1f)
                             .translationY(0f)
                             .translationX(0f).duration = animationDurationMs.toLong()
 
-                        animateColours(this, this.currentTextColor, adjustAlpha(textColor, 0.7f))
+                        animateColours(this@apply, this@apply.currentTextColor, adjustAlpha(textColor, 0.7f))
                     }
                 }
 
@@ -369,14 +363,14 @@ class ExpandableHintText : FrameLayout {
 
             viewBinding.label.apply {
                 postOnMainThread {
-                    ViewCompat.animate(this)
+                    ViewCompat.animate(this@apply)
                         .scaleX(miniatureScale)
                         .scaleY(miniatureScale)
                         .translationY((-labelTranslationY).toFloat())
                         .translationX(-labelTranslationX.plus(labelPadding).times(miniatureScale)).duration =
                         animationDurationMs.toLong()
 
-                    animateColours(this, this.currentTextColor, floatingLabelColor)
+                    animateColours(this@apply, this@apply.currentTextColor, floatingLabelColor)
                 }
             }
 
@@ -429,7 +423,7 @@ class ExpandableHintText : FrameLayout {
         }
     }
 
-    private fun getAttributes(context: Context, attrs: AttributeSet) {
+    private fun setAttributes(context: Context, attrs: AttributeSet) {
         val styledAttrs = context.obtainStyledAttributes(attrs, R.styleable.ExpandableHintText)
 
         animationDurationMs = styledAttrs.getInteger(R.styleable.ExpandableHintText_animationDurationMs, DEFAULT_ANIMATION_MS)
@@ -546,7 +540,7 @@ class ExpandableHintText : FrameLayout {
 
             // Get the drawable and set a color filter
             val drawable = ContextCompat.getDrawable(editText.context, drawableResId)
-            drawable?.setColorFilter(color, PorterDuff.Mode.SRC_IN)
+            drawable?.colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN)
             val drawables = arrayOf(drawable, drawable)
 
             // Set the drawables
